@@ -1,0 +1,19 @@
+{
+  "name": "web-arcade",
+  "version": "1.0.0",
+  "description": "9:16 Mobile-First Web Arcade Lounge",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "sync": "node scripts/build.js"
+  },
+  "keywords": [
+    "arcade",
+    "games",
+    "html5",
+    "canvas",
+    "mobile"
+  ],
+  "author": "Antigravity Team",
+  "license": "MIT"
+}

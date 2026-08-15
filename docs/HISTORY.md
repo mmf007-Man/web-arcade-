@@ -52,3 +52,13 @@
   - `games/dodge-poop/index.js` 및 `style.css` 신규 개발.
   - `games/manifest.json`, `js/registry.js`, `game.html`, `README.md` 전 파일 카탈로그 100% 동기화.
   - Web Audio API 기반 효과음(코인 챠링, 스플래시, 피격음, 승리 팡파레) 자체 합성 내장.
+
+---
+
+### 8. ⭐️ Single Source of Truth 아키텍처 및 자동 동기화 번들러 구축
+- **배경**: `games/` 원본 코드와 `game.html` 단일 파일 간의 수동 코드 복사로 인한 코드 불일치(PC 조작 미반영 등) 문제 해결 요청.
+- **조치 사항**:
+  - **Single Source of Truth 확립**: 모든 게임의 유일한 원본을 `games/` 디렉터리로 단일화.
+  - **자동 번들러(`scripts/build.js`) 구현**: Node.js 내장 모듈만으로 외부 의존성 없이 `games/`의 CSS와 JS를 수집하여 더블클릭 실행용 `game.html`을 1초 만에 자동 생성(`npm run build`).
+  - **문서화 완료**: `README.md`, `docs/DEVELOPMENT_GUIDE.md`, `docs/ARCHITECTURE.md`에 개발 및 빌드 워크플로우 명시.
+

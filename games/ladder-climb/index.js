@@ -1044,37 +1044,6 @@ export class Game {
       ctx.stroke();
 
     } else {
-      // --- 사다리 사이 발로 걸어서 부드럽게 이동하는 보행 모션 ---
-      const legSw = Math.sin(frame * 2.5) * 0.8;
-
-      // 앞다리
-      const knee1X = Math.sin(legSw) * 10 + 4;
-      const foot1X = Math.sin(legSw) * 16 + 6;
-      ctx.beginPath();
-      ctx.moveTo(0, hipY);
-      ctx.lineTo(knee1X, hipY + 10);
-      ctx.lineTo(foot1X, 0);
-      ctx.stroke();
-
-      // 뒷다리
-      const knee2X = -Math.sin(legSw) * 10 - 4;
-      const foot2X = -Math.sin(legSw) * 16 - 6;
-      ctx.beginPath();
-      ctx.moveTo(0, hipY);
-      ctx.lineTo(knee2X, hipY + 10);
-      ctx.lineTo(foot2X, 0);
-      ctx.stroke();
-
-      // 팔 걸을 때 흔들기
-      const armSw = -Math.sin(frame * 2.5) * 12;
-      ctx.beginPath();
-      ctx.moveTo(0, shoulderY);
-      ctx.lineTo(armSw, shoulderY + 12);
-      ctx.moveTo(0, shoulderY);
-      ctx.lineTo(-armSw, shoulderY + 12);
-      ctx.stroke();
-
-    } else {
       // --- 정지 대기 상태 ---
       ctx.beginPath();
       ctx.moveTo(0, hipY);
