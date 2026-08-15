@@ -1,2 +1,52 @@
+# ========================================================
+# 🍎 macOS 시스템 파일
+# ========================================================
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+
+# ========================================================
+# 🪟 Windows 시스템 파일
+# ========================================================
+Thumbs.db
+Thumbs.db:encryptable
+desktop.ini
+$RECYCLE.BIN/
+*.stackdump
+
+# ========================================================
+# 📦 Node & 의존성
+# ========================================================
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# ========================================================
+# 🛠️ IDE & 에디터 설정 파일
+# ========================================================
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# ========================================================
+# 📝 로그 & 임시 파일
+# ========================================================
+logs
+*.log
+.env
+.env.local
