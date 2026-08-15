@@ -322,9 +322,7 @@ export class Game {
             <div class="lc-overlay-icon">🪜🪵</div>
             <h2 class="lc-overlay-title">사다리 통나무 피하기</h2>
             <p class="lc-overlay-desc">
-              떨어지는 굵은 통나무를 피해 5개의 사다리를 오르세요!<br>
-              <strong>[위]</strong> 등반 | <strong>[아래]</strong> 빠른 하강<br>
-              <strong>[좌/우]</strong> 발로 걸어서 옆 사다리로 이동!
+              떨어지는 통나무를 피해 사다리를 타고 정상까지 올라가세요!
             </p>
             <button class="lc-btn-primary" id="lc-btn-start">게임 시작하기 ▶</button>
           </div>
@@ -352,12 +350,11 @@ export class Game {
 
         <!-- 모바일 가상 조작 버튼 -->
         <div class="lc-controls">
-          <button class="lc-touch-btn lc-btn-up" id="lc-btn-up">▲ 위로 (등반)</button>
-          <button class="lc-touch-btn lc-btn-left" id="lc-btn-left">◀ 왼쪽</button>
-          <button class="lc-touch-btn lc-btn-down" id="lc-btn-down">▼ 아래로 (빠른하강)</button>
-          <button class="lc-touch-btn lc-btn-right" id="lc-btn-right">오른쪽 ▶</button>
+          <button class="lc-touch-btn lc-btn-up" id="lc-btn-up">▲</button>
+          <button class="lc-touch-btn lc-btn-left" id="lc-btn-left">◀</button>
+          <button class="lc-touch-btn lc-btn-down" id="lc-btn-down">▼</button>
+          <button class="lc-touch-btn lc-btn-right" id="lc-btn-right">▶</button>
         </div>
-        <p class="lc-keyboard-hint">PC: 방향키(↑ ↓ ← →) 또는 [W], [S], [A], [D] 키</p>
       </div>
     `;
 
