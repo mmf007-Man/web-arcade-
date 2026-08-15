@@ -19,21 +19,7 @@
 - **⚡ No-Build & 설치 0개**: Node.js, `npm`, `vite`, `build` 명령어가 **아예 0개**입니다. `index.html`을 클릭해 브라우저로 띄우거나 깃허브에 올리기만 하면 1초 만에 실행됩니다.
 - **🔌 간편한 확장 구조**: `games/` 하위 폴더에 새 게임 코드 파일(`index.js`)을 만들고, `games/manifest.json` 배열에 게임 ID 한 줄만 추가하면 끝납니다.
 - **📱 9:16 모바일 비율 최적화**: 스마트폰 세로 해상도 및 모바일 터치/제스처 조작(스와이프, 탭)을 완벽 지원합니다.
-- **💣 기본 탑재 게임**: 지뢰찾기(`minesweeper`), 스네이크(`snake`), 테트리스(`tetris`) 포함.
-
----
-
-## 🕹️ 탑재된 게임 목록
-
-1. **💣 지뢰찾기 (Minesweeper)**
-   - 위치: `games/minesweeper/`
-   - 난이도 선택(초급/중급/상급), 타이머, 깃발 표시, Web Audio 효과음 지원.
-2. **🐍 스네이크 (Snake Game)**
-   - 위치: `games/snake/`
-   - 방향키 조작, 먹이 섭취 및 점수 계산, 자기 몸/벽 충돌 감지.
-3. **💩 똥 피하기 (Avoid Poop)**
-   - 위치: `games/dodge-poop/`
-   - 졸라맨 캐릭터, 똥 피하기 및 바닥 스플래시, 황금 코인 50개 수집 클리어 및 승리 댄스 모션.
+- **💣 다채로운 미니 게임**: 지뢰찾기(`minesweeper`), 스네이크(`snake`), 테트리스(`tetris`), 똥피하기(`dodge-poop`) 포함.
 
 ---
 
@@ -78,11 +64,11 @@ web-arcade/
 │   ├── main.js               # 오락실 메인 애플리케이션 및 모달 제어
 │   └── registry.js           # No-Build 동적 모듈 로더
 ├── games/
-│   ├── manifest.json         # 등록된 게임 리스트 (["minesweeper", "snake", "dodge-poop"])
-│   ├── minesweeper/          # [게임 1] 지뢰찾기
-│   ├── snake/                # [게임 2] 스네이크
-│   ├── dodge-poop/           # [게임 3] 똥 피하기 (Avoid Poop)
-│   └── [your-game]/          # [신규] 개발자가 추가할 게임 폴더
+│   ├── manifest.json         # 등록된 게임 리스트
+│   ├── minesweeper/          # 지뢰찾기
+│   ├── snake/                # 스네이크
+│   ├── tetris/               # 테트리스
+│   └── dodge-poop/           # 똥피하기
 └── docs/                     # 프로젝트 문서 모음
     ├── ARCHITECTURE.md       # 순수 ES 모듈 아키텍처
     ├── DEVELOPMENT_GUIDE.md  # 바이브 코딩 원칙 및 개발자 가이드
