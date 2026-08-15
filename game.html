@@ -195,7 +195,7 @@
     .snake-canvas { background-color: #0f172a; border: 2px solid #38bdf8; border-radius: 8px; max-width: 100%; height: auto; }
     .snake-btn { background: #38bdf8; color: #0f172a; border: none; padding: 6px 14px; font-weight: bold; border-radius: 6px; cursor: pointer; }
 
-    /* 테트리스 실시간 좌우 드래그 지원 */
+    /* 테트리스 */
     .tetris-container { display: flex; flex-direction: column; align-items: center; gap: 10px; color: #f8fafc; width: 100%; }
     .tetris-dashboard { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 220px; background: rgba(15, 23, 42, 0.7); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08); }
     .tetris-score-info { display: flex; flex-direction: column; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: bold; }
@@ -206,7 +206,13 @@
     .tetris-gesture-guide p { color: #a855f7; margin-bottom: 4px; }
     .tetris-gesture-guide ul { list-style: none; display: flex; flex-direction: column; gap: 2px; color: #94a3b8; }
     .t-btn-wide { width: 100%; max-width: 220px; background: #a855f7; color: #0f172a; border: none; padding: 10px; font-size: 0.95rem; font-weight: bold; border-radius: 8px; cursor: pointer; }
-    .t-btn-wide:active { background: #9333ea; color: #ffffff; }
+
+    /* 똥피하기 */
+    .poop-container { display: flex; flex-direction: column; align-items: center; gap: 10px; color: #f8fafc; width: 100%; }
+    .poop-header-board { display: flex; justify-content: space-around; width: 100%; max-width: 250px; background: rgba(15, 23, 42, 0.7); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: bold; }
+    .poop-canvas { background-color: #1e293b; border: 2px solid #f59e0b; border-radius: 8px; box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); touch-action: none; }
+    .poop-controls { display: flex; gap: 10px; width: 100%; max-width: 250px; }
+    .p-btn { flex: 1; background: #f59e0b; color: #0f172a; border: none; padding: 10px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -438,7 +444,89 @@
       }
     }
 
-    // --- 3. 테트리스 (실시간 좌우 드래그 이동 지원) ---
+    // --- 3. 똥피하기 ---
+    class DodgePoopPlugin {
+      constructor() {
+        this.container = null; this.score = 0; this.coins = 0; this.interval = null;
+        this.playerX = 120; this.poops = []; this.coinItems = []; this.isGameOver = false;
+      }
+      mount(container) {
+        this.container = container;
+        this.container.innerHTML = `
+          <div class="poop-container">
+            <div class="poop-header-board">
+              <span>점수: <span id="p-score">0</span></span>
+              <span>코인: <span id="p-coins">0</span>/50</span>
+            </div>
+            <canvas id="poop-canvas" width="250" height="350" class="poop-canvas"></canvas>
+            <div class="poop-controls">
+              <button class="p-btn" id="p-left">⬅️ 왼쪽</button>
+              <button class="p-btn" id="p-right">오른쪽 ➡️</button>
+            </div>
+          </div>
+        `;
+        this.canvas = this.container.querySelector('#poop-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.container.querySelector('#p-left').addEventListener('mousedown', () => this.move(-15));
+        this.container.querySelector('#p-right').addEventListener('mousedown', () => this.move(15));
+        this.container.querySelector('#p-left').addEventListener('touchstart', (e) => { e.preventDefault(); this.move(-15); });
+        this.container.querySelector('#p-right').addEventListener('touchstart', (e) => { e.preventDefault(); this.move(15); });
+        this.reset();
+      }
+      unmount() { this.stop(); if (this.container) this.container.innerHTML = ''; }
+      reset() {
+        this.stop(); this.score = 0; this.coins = 0; this.playerX = 120; this.poops = []; this.coinItems = []; this.isGameOver = false;
+        this.interval = setInterval(() => this.loop(), 30);
+      }
+      stop() { if (this.interval) clearInterval(this.interval); this.interval = null; }
+      move(dx) {
+        if (this.isGameOver) return;
+        this.playerX = Math.max(10, Math.min(230, this.playerX + dx));
+      }
+      loop() {
+        if (Math.random() < 0.08) this.poops.push({ x: Math.random() * 230, y: 0, speed: Math.random() * 3 + 3 });
+        if (Math.random() < 0.03) this.coinItems.push({ x: Math.random() * 230, y: 0 });
+
+        this.score++;
+        this.container.querySelector('#p-score').textContent = this.score;
+        this.container.querySelector('#p-coins').textContent = this.coins;
+
+        this.poops.forEach(p => p.y += p.speed);
+        this.coinItems.forEach(c => c.y += 3);
+
+        // 충돌 검사
+        for (let p of this.poops) {
+          if (p.y > 310 && Math.abs(p.x - this.playerX) < 18) {
+            this.isGameOver = true; this.stop(); alert(`💩 똥에 맞았습니다! 최종 점수: ${this.score}`); return;
+          }
+        }
+        for (let i = this.coinItems.length - 1; i >= 0; i--) {
+          let c = this.coinItems[i];
+          if (c.y > 310 && Math.abs(c.x - this.playerX) < 20) {
+            this.coins++; this.coinItems.splice(i, 1);
+            if (this.coins >= 50) {
+              this.isGameOver = true; this.stop(); alert(`🎉 축하합니다! 황금 코인 50개를 모두 수집했습니다!`); return;
+            }
+          }
+        }
+
+        this.draw();
+      }
+      draw() {
+        this.ctx.fillStyle = '#1e293b'; this.ctx.fillRect(0, 0, 250, 350);
+        // 플레이어
+        this.ctx.fillStyle = '#38bdf8'; this.ctx.beginPath();
+        this.ctx.arc(this.playerX, 325, 12, 0, Math.PI * 2); this.ctx.fill();
+        // 똥
+        this.ctx.fillStyle = '#78350f';
+        this.poops.forEach(p => { this.ctx.beginPath(); this.ctx.arc(p.x, p.y, 8, 0, Math.PI * 2); this.ctx.fill(); });
+        // 코인
+        this.ctx.fillStyle = '#f59e0b';
+        this.coinItems.forEach(c => { this.ctx.beginPath(); this.ctx.arc(c.x, c.y, 6, 0, Math.PI * 2); this.ctx.fill(); });
+      }
+    }
+
+    // --- 4. 테트리스 ---
     class TetrisGamePlugin {
       constructor() {
         this.container = null; this.cols = 10; this.rows = 20; this.blockSize = 18;
@@ -682,6 +770,18 @@
           thumbnailColor: 'linear-gradient(135deg, #10b981 0%, #064e3b 100%)'
         },
         GameClass: SnakeGamePlugin
+      },
+      {
+        meta: {
+          id: 'dodge-poop',
+          title: '똥 피하기 (Avoid Poop)',
+          description: '하늘에서 떨어지는 똥을 피하고 황금 코인 50개를 모아 탈출하세요!',
+          author: 'Antigravity Team',
+          category: '아케이드 / 액션',
+          icon: '💩',
+          thumbnailColor: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)'
+        },
+        GameClass: DodgePoopPlugin
       },
       {
         meta: {
