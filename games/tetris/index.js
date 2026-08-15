@@ -1,12 +1,12 @@
 export const meta = {
   id: 'tetris',
   title: '테트리스 (Tetris)',
-  description: '블록을 회전시키고 가득 채워 줄을 지워보세요! 화면 터치 제스처(탭:회전, 스와이프:이동/드롭) 지원',
+  description: '블록을 회전시키고 가득 채워 줄을 지워보세요! 실시간 좌우 드래그 이동 & 터치 조작 지원',
   author: 'Arcade Contributor',
   category: '퍼즐 / 아케이드',
   icon: '🧱',
   thumbnailColor: 'linear-gradient(135deg, #a855f7 0%, #581c87 100%)',
-  version: '1.2.0'
+  version: '1.3.0'
 };
 
 const COLS = 10;
@@ -50,13 +50,16 @@ export class Game {
     this.gameInterval = null;
     this.isGameOver = false;
 
-    // 터치 제스처 트래킹
+    // 터치 및 실시간 드래그 트래킹 변수
     this.touchStartX = 0;
     this.touchStartY = 0;
+    this.lastDragX = 0;
     this.touchStartTime = 0;
+    this.isDragging = false;
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleTouchStart = this.handleTouchStart.bind(this);
+    this.handleTouchMove = this.handleTouchMove.bind(this);
     this.handleTouchEnd = this.handleTouchEnd.bind(this);
   }
 
@@ -82,6 +85,7 @@ export class Game {
     window.removeEventListener('keydown', this.handleKeyDown);
     if (this.canvas) {
       this.canvas.removeEventListener('touchstart', this.handleTouchStart);
+      this.canvas.removeEventListener('touchmove', this.handleTouchMove);
       this.canvas.removeEventListener('touchend', this.handleTouchEnd);
     }
     if (this.container) {
@@ -106,15 +110,15 @@ export class Game {
         <canvas id="tetris-canvas" width="180" height="360" class="tetris-canvas"></canvas>
 
         <div class="tetris-gesture-guide">
-          <p>👇 <b>화면 터치 제스처 조작</b></p>
+          <p>👇 <b>터치 조작 안내</b></p>
           <ul>
+            <li>👈👉 <b>좌우 실시간 드래그</b>: 블록 연속 이동</li>
             <li>👆 <b>짧은 탭</b>: 블록 회전</li>
-            <li>👈👉 <b>좌/우 스와이프</b>: 블록 이동</li>
             <li>👇 <b>아래 스와이프</b>: 하드 드롭</li>
           </ul>
         </div>
 
-        <button class="t-btn t-btn-wide" id="t-btn-restart">다시 시작</button>
+        <button class="t-btn-wide" id="t-btn-restart">다시 시작</button>
       </div>
     `;
 
@@ -125,8 +129,9 @@ export class Game {
 
     this.container.querySelector('#t-btn-restart').addEventListener('click', () => this.resetGame());
 
-    // 화면 터치 제스처 이벤트 등록
+    // 실시간 드래그 및 터치 이벤트 등록
     this.canvas.addEventListener('touchstart', this.handleTouchStart, { passive: false });
+    this.canvas.addEventListener('touchmove', this.handleTouchMove, { passive: false });
     this.canvas.addEventListener('touchend', this.handleTouchEnd, { passive: false });
 
     window.addEventListener('keydown', this.handleKeyDown);
@@ -138,31 +143,42 @@ export class Game {
     const touch = e.touches[0];
     this.touchStartX = touch.clientX;
     this.touchStartY = touch.clientY;
+    this.lastDragX = touch.clientX;
     this.touchStartTime = Date.now();
+    this.isDragging = true;
+  }
+
+  handleTouchMove(e) {
+    if (this.isGameOver || !this.isDragging) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - this.lastDragX;
+    const dragThreshold = 18; // 블록 1칸 당 이동 임계값 (18px)
+
+    if (deltaX > dragThreshold) {
+      this.moveRight();
+      this.lastDragX = touch.clientX;
+    } else if (deltaX < -dragThreshold) {
+      this.moveLeft();
+      this.lastDragX = touch.clientX;
+    }
   }
 
   handleTouchEnd(e) {
     if (this.isGameOver) return;
     e.preventDefault();
+    this.isDragging = false;
     const touch = e.changedTouches[0];
-    const deltaX = touch.clientX - this.touchStartX;
-    const deltaY = touch.clientY - this.touchStartY;
+    const totalDeltaX = touch.clientX - this.touchStartX;
+    const totalDeltaY = touch.clientY - this.touchStartY;
     const duration = Date.now() - this.touchStartTime;
 
-    const minSwipeDist = 25;
-
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      if (deltaX > minSwipeDist) {
-        this.moveRight();
-      } else if (deltaX < -minSwipeDist) {
-        this.moveLeft();
-      }
-    } else {
-      if (deltaY > minSwipeDist) {
-        this.hardDrop();
-      } else if (Math.abs(deltaX) < 15 && Math.abs(deltaY) < 15 && duration < 300) {
-        this.rotate();
-      }
+    // 아래로 빠른 스와이프 -> 하드 드롭
+    if (totalDeltaY > 35 && Math.abs(totalDeltaY) > Math.abs(totalDeltaX)) {
+      this.hardDrop();
+    } else if (Math.abs(totalDeltaX) < 12 && Math.abs(totalDeltaY) < 12 && duration < 250) {
+      // 제자리 짧은 탭 -> 회전
+      this.rotate();
     }
   }
 
