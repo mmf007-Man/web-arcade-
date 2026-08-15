@@ -1,0 +1,89 @@
+.tetris-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: #f8fafc;
+  width: 100%;
+}
+
+/* 상단 대시보드 (점수 + 다음 블록 미리보기) */
+.tetris-dashboard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 220px;
+  background: rgba(15, 23, 42, 0.7);
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tetris-score-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.tetris-next-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--accent-neon);
+  font-weight: bold;
+}
+
+.tetris-next-canvas {
+  background-color: #0f172a;
+  border: 1px solid #475569;
+  border-radius: 6px;
+}
+
+.tetris-canvas {
+  background-color: #0f172a;
+  border: 2px solid #a855f7;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+}
+
+/* 모바일 터치 컨트롤 패드 */
+.tetris-touch-controls {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+  max-width: 220px;
+}
+
+.t-btn {
+  background: #1e293b;
+  border: 1px solid #475569;
+  color: #f8fafc;
+  padding: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.t-btn:active {
+  background: #a855f7;
+  color: #0f172a;
+}
+
+.t-btn-wide {
+  grid-column: span 3;
+  background: #a855f7;
+  color: #0f172a;
+  border: none;
+}
