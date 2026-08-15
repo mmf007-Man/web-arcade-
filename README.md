@@ -31,9 +31,9 @@
 2. **🐍 스네이크 (Snake Game)**
    - 위치: `games/snake/`
    - 방향키 조작, 먹이 섭취 및 점수 계산, 자기 몸/벽 충돌 감지.
-3. **🧱 테트리스 (Tetris)**
-   - 위치: `games/tetris/`
-   - 7가지 블록, 회전, 소프트/하드드롭, **하단 그림자(Ghost)**, **다음 블록 미리보기(NEXT)**, **화면 터치 제스처 조작(탭:회전, 스와이프:이동/드롭)** 지원.
+3. **💩 똥 피하기 (Avoid Poop)**
+   - 위치: `games/dodge-poop/`
+   - 졸라맨 캐릭터, 똥 피하기 및 바닥 스플래시, 황금 코인 50개 수집 클리어 및 승리 댄스 모션.
 
 ---
 
@@ -78,10 +78,11 @@ web-arcade/
 │   ├── main.js               # 오락실 메인 애플리케이션 및 모달 제어
 │   └── registry.js           # No-Build 동적 모듈 로더
 ├── games/
-│   ├── manifest.json         # 등록된 게임 리스트 (["minesweeper", "snake", "tetris"])
+│   ├── manifest.json         # 등록된 게임 리스트 (["minesweeper", "snake", "dodge-poop"])
 │   ├── minesweeper/          # [게임 1] 지뢰찾기
 │   ├── snake/                # [게임 2] 스네이크
-│   └── tetris/               # [게임 3] 테트리스
+│   ├── dodge-poop/           # [게임 3] 똥 피하기 (Avoid Poop)
+│   └── [your-game]/          # [신규] 개발자가 추가할 게임 폴더
 └── docs/                     # 프로젝트 문서 모음
     ├── ARCHITECTURE.md       # 순수 ES 모듈 아키텍처
     ├── DEVELOPMENT_GUIDE.md  # 바이브 코딩 원칙 및 개발자 가이드
