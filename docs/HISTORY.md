@@ -62,3 +62,15 @@
   - **자동 번들러(`scripts/build.js`) 구현**: Node.js 내장 모듈만으로 외부 의존성 없이 `games/`의 CSS와 JS를 수집하여 더블클릭 실행용 `game.html`을 1초 만에 자동 생성(`npm run build`).
   - **문서화 완료**: `README.md`, `docs/DEVELOPMENT_GUIDE.md`, `docs/ARCHITECTURE.md`에 개발 및 빌드 워크플로우 명시.
 
+---
+
+### 9. 🚀 제로 의존성 로컬 개발 서버(`npm run dev`) 구축 및 game.html 제거
+- **배경**: 매번 게임 코드를 수정할 때마다 `game.html`을 다시 빌드해야 하는 개발 피로도 및 비용 절감 요청.
+- **조치 사항**:
+  - **경량 로컬 서버(`scripts/server.js`) 구축**: Node.js 내장 `http` 모듈로 외부 패키지 설치 없이 즉시 실행 가능한 정적 파일 서버 구현 (`npm run dev`).
+  - **`index.html` 기반 실시간 핫 서빙**: `games/` 폴더 내 소스 코드를 수정 후 브라우저 새로고침(F5)만으로 빌드 없이 즉시 반영되는 쾌적한 개발 환경 완성.
+  - **동적 모듈 로더 연동**: `js/registry.js`가 `games/manifest.json`을 읽어 신규 게임 모듈을 자동 인식하도록 최적화.
+  - **`game.html` 및 빌더 제거**: 중복된 대용량 단일 배포 파일과 빌드 스크립트를 제거하고, 더블클릭 바로가기용 `play.html` 제공으로 프로젝트 구조를 극도로 단순화.
+
+
+

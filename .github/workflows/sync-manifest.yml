@@ -1,0 +1,47 @@
+name: Auto Sync Game Manifest
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'games/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'games/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Sync games/manifest.json
+        run: node scripts/sync-manifest.js
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain games/manifest.json)" ]; then
+            git add games/manifest.json
+            git commit -m "chore: auto-sync games/manifest.json [skip ci]"
+            git push
+          else
+            echo "No changes in games/manifest.json"
+          fi

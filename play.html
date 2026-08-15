@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🕹️ 웹 오락실 바로가기 (Connect to Localhost:3000)</title>
+    <!-- 0초 즉시 리다이렉트 -->
+    <meta http-equiv="refresh" content="0; url=http://localhost:3000" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      }
+      body {
+        background-color: #070a12;
+        color: #f8fafc;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+      .redirect-card {
+        background: #131927;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 36px 28px;
+        max-width: 420px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+      }
+      .arcade-icon {
+        font-size: 3.5rem;
+        margin-bottom: 12px;
+        animation: pulse 1.5s infinite alternate;
+      }
+      @keyframes pulse {
+        from { transform: scale(1); }
+        to { transform: scale(1.1); }
+      }
+      h1 {
+        font-size: 1.4rem;
+        font-weight: 900;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, #38bdf8 0%, #a855f7 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      p {
+        font-size: 0.9rem;
+        color: #94a3b8;
+        line-height: 1.5;
+        margin-bottom: 24px;
+      }
+      .btn-connect {
+        display: block;
+        background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+        color: #ffffff;
+        text-decoration: none;
+        padding: 14px;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 800;
+        box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
+        transition: all 0.2s ease;
+      }
+      .btn-connect:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 22px rgba(56, 189, 248, 0.6);
+      }
+      .server-hint {
+        margin-top: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 0.78rem;
+        color: #64748b;
+      }
+      .server-hint code {
+        color: #38bdf8;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="redirect-card">
+      <div class="arcade-icon">🕹️</div>
+      <h1>웹 오락실 연결 중...</h1>
+      <p>
+        로컬 개발 서버(<code>http://localhost:3000</code>)로 즉시 이동합니다.
+      </p>
+      <a href="http://localhost:3000" class="btn-connect" id="redirect-link">
+        오락실 바로 접속하기 ▶
+      </a>
+      <div class="server-hint">
+        💡 연결이 되지 않는다면 터미널에서 <code>npm run dev</code>를 실행해 주세요.
+      </div>
+    </div>
+
+    <script>
+      // 자바스크립트 자동 리다이렉트 (0ms)
+      window.location.replace("http://localhost:3000");
+    </script>
+  </body>
+</html>

@@ -1,37 +1,47 @@
 /**
  * Game Registry Engine
  * 
- * 정적 ES 모듈 임포트를 통해 file:// 로컬 환경 및 브라우저 보안 제약 없이
- * 모든 게임 모듈을 100% 보장하며 즉시 수집합니다.
+ * `games/manifest.json`에 등록된 게임 목록을 읽어와
+ * 브라우저 Native ES Module dynamic import(`import()`)를 통해 게임 모듈들을 수집합니다.
+ * 별도의 번들/빌드 단계 없이 소스 코드 변경 사항이 실시간으로 즉시 반영됩니다.
  */
-
-import * as minesweeper from '../games/minesweeper/index.js';
-import * as snake from '../games/snake/index.js';
-import * as dodgePoop from '../games/dodge-poop/index.js';
-import * as tetris from '../games/tetris/index.js';
-import * as ladderClimb from '../games/ladder-climb/index.js';
 
 export class GameRegistry {
   constructor() {
     this.gamesMap = new Map();
     this.isLoaded = false;
-    this.initDefaultGames();
-  }
-
-  initDefaultGames() {
-    const modules = [minesweeper, snake, dodgePoop, tetris, ladderClimb];
-    modules.forEach(mod => {
-      if (mod && mod.meta && mod.Game) {
-        this.gamesMap.set(mod.meta.id, {
-          meta: mod.meta,
-          GameClass: mod.Game,
-          id: mod.meta.id
-        });
-      }
-    });
   }
 
   async loadAllGames() {
+    if (this.isLoaded) return Array.from(this.gamesMap.values());
+
+    let gameIds = ['minesweeper', 'snake', 'dodge-poop', 'tetris', 'ladder-climb'];
+
+    try {
+      const response = await fetch('./games/manifest.json');
+      if (response.ok) {
+        gameIds = await response.json();
+      }
+    } catch (err) {
+      console.warn('[Arcade Registry] manifest fetch failed, using default list:', err);
+    }
+
+    for (const id of gameIds) {
+      try {
+        const module = await import(`../games/${id}/index.js`);
+        if (module && module.meta && module.Game) {
+          this.gamesMap.set(module.meta.id, {
+            meta: module.meta,
+            GameClass: module.Game,
+            id: module.meta.id
+          });
+        }
+      } catch (err) {
+        console.error(`[Arcade Registry] Failed to load game module: ${id}`, err);
+      }
+    }
+
+    this.isLoaded = true;
     return Array.from(this.gamesMap.values());
   }
 

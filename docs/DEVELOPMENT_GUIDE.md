@@ -1,4 +1,4 @@
-# 🛠️ 새로운 게임 추가 및 수정 개발자 가이드 (Single Source of Truth)
+# 🛠️ 새로운 게임 추가 및 수정 개발자 가이드 (No-Build 버전)
 
 본 가이드는 `web-arcade` 오락실 플랫폼에 자신이 만든 미니 게임을 추가하거나 기존 게임을 수정하려는 기여자를 위한 가이드입니다.
 
@@ -11,15 +11,14 @@
    - 임의 판단을 지양하고 **최대한 개발자의 원래 설계 의도와 요청 방향에 맞춰** 유연하게 개발을 진행합니다.
 2. **사전 승인 없는 자동 제출(Commit/Push) 금지**:
    - 코드 작성이나 수정이 끝난 후 개발자의 명시적 요청이나 승인 없이 마음대로 git commit / push를 진행하지 않습니다.
-3. **⭐️ Single Source of Truth (코드 불일치 0%)**:
+3. **Single Source of Truth**:
    - 모든 게임의 원본 코드는 **오직 `games/[게임명]/` 디렉터리 내부**에만 작성합니다.
-   - `game.html`은 사람이 수동으로 수정하지 않으며, `npm run build` 스크립트를 통해 자동으로 생성됩니다.
 4. **폴더 내 자율 구성**: 작성하는 모든 게임 관련 소스 코드(JS, CSS, 유틸 등)는 `games/[본인게임폴더]/` 내부에 포함되어야 합니다.
 5. **리소스 Cleanup 필수**: `unmount()` 메서드에서 `setInterval`, `requestAnimationFrame`, `window.addEventListener` 등을 반드시 제거하여 다른 게임이나 메인 UI에 영향을 주지 않도록 해야 합니다.
 
 ---
 
-## 📝 5단계 게임 작성 및 등록 방법
+## 📝 4단계 게임 작성 및 등록 방법
 
 ### 1단계: 폴더 만들기
 `games/` 아래에 게임 식별자로 사용할 영문 폴더를 만듭니다.
@@ -83,29 +82,13 @@ export class Game {
 }
 ```
 
-### 3단계: `games/manifest.json`에 1줄 등록하기
-`games/manifest.json` 파일의 리스트에 생성한 폴더 이름을 한 줄 추가합니다.
-
-```json
-[
-  "minesweeper",
-  "snake",
-  "dodge-poop",
-  "tetris",
-  "flappy-bird"
-]
-```
-
-### 4단계: `game.html` 자동 동기화 빌드 (1초 소요)
-수정이 끝난 후 아래 명령어를 실행하여 더블클릭 단일 실행 파일(`game.html`)을 자동으로 생성합니다.
+### 3단계: 브라우저 새로고침(F5) ➔ 자동 등록 & 테스트 끝!
+로컬 개발 서버(`scripts/server.js`)가 `games/` 디렉터리를 **실시간 자동 감지(Auto Discovery)**하므로, `manifest.json`을 수정할 필요 없이 폴더를 만들자마자 즉시 카탈로그에 등록됩니다!
 
 ```bash
-npm run build
-# 또는 node scripts/build.js
+npm run dev
 ```
 
-### 5단계: 테스트 및 제출 (PR)
-1. **웹 서버 모드 테스트**: VS Code Live Server 또는 `python3 -m http.server 8080`으로 `index.html` 접속 테스트
-2. **단일 파일 모드 테스트**: 브라우저에서 `game.html` 직접 열어 테스트
-3. 카드를 클릭해 게임이 정상 플레이되는지, 닫기를 눌렀을 때 오류가 없는지 테스트합니다.
-4. 개발자의 확인 후 깃허브 저장소에 `push` 하거나 Pull Request를 제출합니다.
+1. 터미널에서 `npm run dev` 실행 후 브라우저(`http://localhost:3000`)에서 새로고침(F5)합니다.
+2. 카드를 클릭해 게임이 정상 플레이되는지, 닫기를 눌렀을 때 리소스 정돈이 잘 되는지 확인합니다.
+3. 확인 후 깃허브 저장소에 커밋/푸시하거나 Pull Request를 제출합니다.
