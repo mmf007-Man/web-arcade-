@@ -1,0 +1,124 @@
+.ms-game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 100%;
+  padding: 10px;
+}
+
+.ms-difficulty-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.ms-difficulty-btn {
+  background: #334155;
+  border: 1px solid #475569;
+  color: #f8fafc;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ms-difficulty-btn:hover {
+  background: #475569;
+}
+
+.ms-difficulty-btn.active {
+  background: #38bdf8;
+  color: #0f172a;
+  border-color: #38bdf8;
+}
+
+.ms-game-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ms-status-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.ms-reset-btn {
+  background: #334155;
+  border: 1px solid #475569;
+  color: #f8fafc;
+  font-size: 1.4rem;
+  padding: 4px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ms-reset-btn:hover {
+  background: #475569;
+  transform: scale(1.05);
+}
+
+.ms-board {
+  display: grid;
+  gap: 2px;
+  background-color: #1e293b;
+  padding: 8px;
+  border-radius: 8px;
+  border: 2px solid #334155;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.ms-cell {
+  width: 36px;
+  height: 36px;
+  background-color: #334155;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.1s ease;
+}
+
+.ms-cell:hover:not(.revealed) {
+  background-color: #475569;
+}
+
+.ms-cell.revealed {
+  background-color: #1e293b;
+  cursor: default;
+}
+
+.ms-cell.mine {
+  background-color: #ef4444 !important;
+}
+
+.ms-cell.flagged {
+  color: #f59e0b;
+}
+
+.ms-cell[data-count="1"] { color: #38bdf8; }
+.ms-cell[data-count="2"] { color: #4ade80; }
+.ms-cell[data-count="3"] { color: #f87171; }
+.ms-cell[data-count="4"] { color: #c084fc; }
+.ms-cell[data-count="5"] { color: #fb923c; }
+.ms-cell[data-count="6"] { color: #2dd4bf; }
+.ms-cell[data-count="7"] { color: #f472b6; }
+.ms-cell[data-count="8"] { color: #94a3b8; }

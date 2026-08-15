@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>👾 웹 오락실 (더블클릭 단일 실행용)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #0b0f19;
+      --bg-card: #151c2c;
+      --bg-card-hover: #1e293b;
+      --accent-neon: #38bdf8;
+      --accent-purple: #a855f7;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-radius: 16px;
+      --shadow-glow: 0 10px 30px -5px rgba(56, 189, 248, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .arcade-header {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 20px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .arcade-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #38bdf8 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .arcade-tagline {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .arcade-container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 40px 24px;
+      flex: 1;
+    }
+
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: var(--border-radius);
+      padding: 32px;
+      margin-bottom: 40px;
+    }
+
+    .hero-title { font-size: 2rem; font-weight: 800; margin-bottom: 10px; }
+    .hero-subtitle { color: var(--text-secondary); font-size: 1rem; line-height: 1.6; }
+
+    .section-title {
+      font-size: 1.3rem; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 10px;
+    }
+
+    .game-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;
+    }
+
+    .game-card {
+      background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--border-radius);
+      overflow: hidden; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column;
+    }
+
+    .game-card:hover {
+      transform: translateY(-6px); border-color: var(--accent-neon); box-shadow: var(--shadow-glow); background: var(--bg-card-hover);
+    }
+
+    .card-thumbnail {
+      height: 150px; display: flex; align-items: center; justify-content: center; font-size: 4rem;
+    }
+
+    .card-body { padding: 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .card-category { font-size: 0.75rem; font-weight: 700; color: var(--accent-neon); text-transform: uppercase; }
+    .card-title { font-size: 1.2rem; font-weight: 700; }
+    .card-desc { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.4; flex: 1; }
+    .card-footer { margin-top: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-secondary); }
+    .play-badge { background: rgba(56, 189, 248, 0.1); color: var(--accent-neon); padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
+      display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; padding: 20px;
+    }
+
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-window {
+      background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px;
+      width: 100%; max-width: 680px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    .modal-header { padding: 16px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .modal-close-btn { background: transparent; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+    .modal-close-btn:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.1); }
+    .modal-content { padding: 24px; overflow-y: auto; display: flex; justify-content: center; align-items: center; min-height: 350px; }
+
+    /* 지뢰찾기 전용 내장 스타일 */
+    .ms-game-container { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
+    .ms-difficulty-selector { display: flex; gap: 8px; }
+    .ms-difficulty-btn { background: #334155; border: 1px solid #475569; color: #f8fafc; padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .ms-difficulty-btn.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; }
+    .ms-game-header { width: 100%; display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.6); padding: 10px 16px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05); }
+    .ms-status-box { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; }
+    .ms-reset-btn { background: #334155; border: 1px solid #475569; color: #f8fafc; font-size: 1.4rem; padding: 4px 12px; border-radius: 8px; cursor: pointer; }
+    .ms-board { display: grid; gap: 2px; background-color: #1e293b; padding: 8px; border-radius: 8px; border: 2px solid #334155; overflow-x: auto; max-width: 100%; }
+    .ms-cell { width: 36px; height: 36px; background-color: #334155; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.1rem; cursor: pointer; }
+    .ms-cell.revealed { background-color: #1e293b; cursor: default; }
+    .ms-cell.mine { background-color: #ef4444 !important; }
+    .ms-cell.flagged { color: #f59e0b; }
+    .ms-cell[data-count="1"] { color: #38bdf8; } .ms-cell[data-count="2"] { color: #4ade80; } .ms-cell[data-count="3"] { color: #f87171; } .ms-cell[data-count="4"] { color: #c084fc; }
+
+    /* 스네이크 전용 내장 스타일 */
+    .snake-container { display: flex; flex-direction: column; align-items: center; gap: 16px; color: #f8fafc; }
+    .snake-score-board { display: flex; gap: 20px; font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: bold; }
+    .snake-canvas { background-color: #0f172a; border: 3px solid #38bdf8; border-radius: 8px; }
+    .snake-btn { background: #38bdf8; color: #0f172a; border: none; padding: 8px 16px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <header class="arcade-header">
+    <div class="arcade-logo">
+      <span>🕹️</span> ARCADE LOUNGE
+    </div>
+    <div class="arcade-tagline">
+      더블클릭만으로 실행되는 100% 단일 파일 오락실
+    </div>
+  </header>
+
+  <main class="arcade-container">
+    <section class="hero-banner">
+      <h1 class="hero-title">WELCOME TO ARCADE LOUNGE 🎮</h1>
+      <p class="hero-subtitle">
+        서버 설치나 보안 제한 없이 파일 더블클릭만으로 언제든 게임을 선택하여 플레이할 수 있습니다.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="section-title">
+        <span>🎯</span> 게임 카탈로그 (<span id="game-count">0</span>)
+      </h2>
+      <div class="game-grid" id="game-grid"></div>
+    </section>
+  </main>
+
+  <div class="modal-overlay" id="game-modal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>🎮</span> <span id="modal-game-name">게임 제목</span>
+        </div>
+        <button class="modal-close-btn" id="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-content" id="modal-game-container"></div>
+    </div>
+  </div>
+
+  <script>
+    // --- 1. 지뢰찾기 게임 클래스 ---
+    class MinesweeperGamePlugin {
+      constructor() {
+        this.container = null;
+        this.level = 'EASY';
+        this.rows = 9; this.cols = 9; this.totalMines = 10;
+        this.board = []; this.isFirst = true; this.isGameOver = false; this.isWin = false;
+        this.flagCount = 0; this.revealedCount = 0; this.timerSec = 0; this.timerId = null;
+      }
+      mount(container) {
+        this.container = container;
+        this.reset();
+      }
+      unmount() {
+        this.stopTimer();
+        if (this.container) this.container.innerHTML = '';
+      }
+      reset() {
+        this.stopTimer();
+        this.timerSec = 0; this.isFirst = true; this.isGameOver = false; this.isWin = false;
+        this.flagCount = 0; this.revealedCount = 0;
+        this.board = Array.from({ length: this.rows }, () =>
+          Array.from({ length: this.cols }, () => ({ isMine: false, isRevealed: false, isFlagged: false, neighborMines: 0 }))
+        );
+        this.renderUI();
+      }
+      renderUI() {
+        this.container.innerHTML = `
+          <div class="ms-game-container">
+            <div class="ms-difficulty-selector">
+              <button class="ms-difficulty-btn ${this.level==='EASY'?'active':''}" onclick="currentGame.changeLevel('EASY',9,9,10)">초급 (9x9)</button>
+              <button class="ms-difficulty-btn ${this.level==='MEDIUM'?'active':''}" onclick="currentGame.changeLevel('MEDIUM',16,16,40)">중급 (16x16)</button>
+              <button class="ms-difficulty-btn ${this.level==='HARD'?'active':''}" onclick="currentGame.changeLevel('HARD',16,30,99)">상급 (16x30)</button>
+            </div>
+            <div class="ms-game-header">
+              <div class="ms-status-box">🚩 <span id="ms-mines">${this.totalMines - this.flagCount}</span></div>
+              <button class="ms-reset-btn" onclick="currentGame.reset()">${this.isGameOver?(this.isWin?'😎':'😵'):'🙂'}</button>
+              <div class="ms-status-box">⏱️ <span id="ms-timer">${String(this.timerSec).padStart(3,'0')}</span></div>
+            </div>
+            <div class="ms-board" id="ms-board"></div>
+          </div>
+        `;
+        this.renderBoard();
+      }
+      changeLevel(lvl, r, c, m) {
+        this.level = lvl; this.rows = r; this.cols = c; this.totalMines = m;
+        this.reset();
+      }
+      renderBoard() {
+        const boardEl = this.container.querySelector('#ms-board');
+        if (!boardEl) return;
+        boardEl.style.gridTemplateColumns = `repeat(${this.cols}, 36px)`;
+        boardEl.innerHTML = '';
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols; c++) {
+            const cell = this.board[r][c];
+            const div = document.createElement('div');
+            div.className = 'ms-cell';
+            if (cell.isRevealed) {
+              div.classList.add('revealed');
+              if (cell.isMine) { div.classList.add('mine'); div.textContent = '💣'; }
+              else if (cell.neighborMines > 0) { div.dataset.count = cell.neighborMines; div.textContent = cell.neighborMines; }
+            } else if (cell.isFlagged) {
+              div.classList.add('flagged'); div.textContent = '🚩';
+            }
+            div.addEventListener('click', () => this.clickCell(r, c));
+            div.addEventListener('contextmenu', (e) => { e.preventDefault(); this.rightClickCell(r, c); });
+            boardEl.appendChild(div);
+          }
+        }
+      }
+      clickCell(r, c) {
+        if (this.isGameOver || this.board[r][c].isFlagged || this.board[r][c].isRevealed) return;
+        if (this.isFirst) {
+          this.genMines(r, c); this.isFirst = false; this.startTimer();
+        }
+        const cell = this.board[r][c];
+        cell.isRevealed = true; this.revealedCount++;
+        if (cell.isMine) {
+          this.isGameOver = true; this.stopTimer(); this.revealMines(); this.renderUI(); return;
+        }
+        if (cell.neighborMines === 0) {
+          const q = [[r, c]];
+          while (q.length > 0) {
+            const [cr, cc] = q.shift();
+            this.getNeighbors(cr, cc).forEach(([nr, nc]) => {
+              const n = this.board[nr][nc];
+              if (!n.isRevealed && !n.isFlagged) {
+                n.isRevealed = true; this.revealedCount++;
+                if (n.neighborMines === 0) q.push([nr, nc]);
+              }
+            });
+          }
+        }
+        if (this.revealedCount === this.rows * this.cols - this.totalMines) {
+          this.isGameOver = true; this.isWin = true; this.stopTimer(); alert(`🎉 승리했습니다! (${this.timerSec}초)`);
+        }
+        this.renderUI();
+      }
+      rightClickCell(r, c) {
+        if (this.isGameOver || this.board[r][c].isRevealed) return;
+        const cell = this.board[r][c];
+        if (!cell.isFlagged && this.flagCount >= this.totalMines) return;
+        cell.isFlagged = !cell.isFlagged;
+        this.flagCount += cell.isFlagged ? 1 : -1;
+        this.renderUI();
+      }
+      genMines(sr, sc) {
+        let p = 0;
+        while (p < this.totalMines) {
+          const r = Math.floor(Math.random() * this.rows), c = Math.floor(Math.random() * this.cols);
+          if (!this.board[r][c].isMine && !(Math.abs(r - sr) <= 1 && Math.abs(c - sc) <= 1)) {
+            this.board[r][c].isMine = true; p++;
+          }
+        }
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols; c++) {
+            if (this.board[r][c].isMine) continue;
+            let cnt = 0;
+            this.getNeighbors(r, c).forEach(([nr, nc]) => { if (this.board[nr][nc].isMine) cnt++; });
+            this.board[r][c].neighborMines = cnt;
+          }
+        }
+      }
+      getNeighbors(r, c) {
+        const res = [];
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            if (dr === 0 && dc === 0) continue;
+            const nr = r + dr, nc = c + dc;
+            if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) res.push([nr, nc]);
+          }
+        }
+        return res;
+      }
+      revealMines() {
+        for (let r = 0; r < this.rows; r++)
+          for (let c = 0; c < this.cols; c++)
+            if (this.board[r][c].isMine) this.board[r][c].isRevealed = true;
+      }
+      startTimer() { this.stopTimer(); this.timerId = setInterval(() => { this.timerSec++; const el = this.container.querySelector('#ms-timer'); if (el) el.textContent = String(this.timerSec).padStart(3,'0'); }, 1000); }
+      stopTimer() { if (this.timerId) clearInterval(this.timerId); this.timerId = null; }
+    }
+
+    // --- 2. 스네이크 게임 클래스 ---
+    class SnakeGamePlugin {
+      constructor() {
+        this.container = null; this.gridSize = 20; this.tileCount = 15;
+        this.snake = [{ x: 7, y: 7 }]; this.food = { x: 3, y: 3 };
+        this.dx = 1; this.dy = 0; this.score = 0; this.interval = null;
+        this.onKey = this.onKey.bind(this);
+      }
+      mount(container) {
+        this.container = container;
+        this.container.innerHTML = `
+          <div class="snake-container">
+            <div class="snake-score-board">점수: <span id="snake-score">0</span></div>
+            <canvas id="snake-canvas" width="300" height="300" class="snake-canvas"></canvas>
+            <button class="snake-btn" onclick="currentGame.reset()">다시 시작</button>
+            <p style="font-size:0.8rem;color:#94a3b8;">키보드 방향키(↑ ↓ ← →)로 조종하세요.</p>
+          </div>
+        `;
+        this.canvas = this.container.querySelector('#snake-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        window.addEventListener('keydown', this.onKey);
+        this.reset();
+      }
+      unmount() {
+        this.stop(); window.removeEventListener('keydown', this.onKey);
+        if (this.container) this.container.innerHTML = '';
+      }
+      reset() {
+        this.stop(); this.snake = [{ x: 7, y: 7 }]; this.dx = 1; this.dy = 0; this.score = 0;
+        this.container.querySelector('#snake-score').textContent = 0;
+        this.placeFood();
+        this.interval = setInterval(() => this.loop(), 120);
+      }
+      stop() { if (this.interval) clearInterval(this.interval); this.interval = null; }
+      placeFood() { this.food = { x: Math.floor(Math.random()*this.tileCount), y: Math.floor(Math.random()*this.tileCount) }; }
+      onKey(e) {
+        if (e.key === 'ArrowUp' && this.dy === 0) { this.dx = 0; this.dy = -1; }
+        else if (e.key === 'ArrowDown' && this.dy === 0) { this.dx = 0; this.dy = 1; }
+        else if (e.key === 'ArrowLeft' && this.dx === 0) { this.dx = -1; this.dy = 0; }
+        else if (e.key === 'ArrowRight' && this.dx === 0) { this.dx = 1; this.dy = 0; }
+      }
+      loop() {
+        const head = { x: this.snake[0].x + this.dx, y: this.snake[0].y + this.dy };
+        if (head.x < 0 || head.x >= this.tileCount || head.y < 0 || head.y >= this.tileCount) { this.gameOver(); return; }
+        for (let i = 0; i < this.snake.length; i++) { if (this.snake[i].x === head.x && this.snake[i].y === head.y) { this.gameOver(); return; } }
+        this.snake.unshift(head);
+        if (head.x === this.food.x && head.y === this.food.y) {
+          this.score += 10; this.container.querySelector('#snake-score').textContent = this.score; this.placeFood();
+        } else { this.snake.pop(); }
+        this.draw();
+      }
+      gameOver() { this.stop(); alert(`🎮 Game Over! 점수: ${this.score}`); }
+      draw() {
+        this.ctx.fillStyle = '#0f172a'; this.ctx.fillRect(0,0,300,300);
+        this.ctx.fillStyle = '#ef4444'; this.ctx.beginPath();
+        this.ctx.arc(this.food.x*20+10, this.food.y*20+10, 8, 0, Math.PI*2); this.ctx.fill();
+        this.snake.forEach((p, i) => {
+          this.ctx.fillStyle = i === 0 ? '#4ade80' : '#22c55e';
+          this.ctx.fillRect(p.x*20+1, p.y*20+1, 18, 18);
+        });
+      }
+    }
+
+    // --- 3. 통합 등록 데이터 (오락실 카탈로그) ---
+    const REGISTERED_GAMES = [
+      {
+        meta: {
+          id: 'minesweeper',
+          title: '지뢰찾기 (Minesweeper)',
+          description: '지뢰를 피해 모든 안전한 칸을 열어보세요! 추억의 스릴 게임',
+          author: 'Antigravity Team',
+          category: '퍼즐 / 전략',
+          icon: '💣',
+          thumbnailColor: 'linear-gradient(135deg, #ef4444 0%, #991b1b 100%)'
+        },
+        GameClass: MinesweeperGamePlugin
+      },
+      {
+        meta: {
+          id: 'snake',
+          title: '스네이크 (Snake Game)',
+          description: '먹이를 먹으며 몸집을 키우세요! 벽이나 몸에 부딪히지 마세요.',
+          author: 'Arcade Contributor',
+          category: '아케이드 / 액션',
+          icon: '🐍',
+          thumbnailColor: 'linear-gradient(135deg, #10b981 0%, #064e3b 100%)'
+        },
+        GameClass: SnakeGamePlugin
+      }
+    ];
+
+    let currentGame = null;
+
+    // --- 4. 오락실 메인 실행 로직 ---
+    function initArcade() {
+      const grid = document.getElementById('game-grid');
+      document.getElementById('game-count').textContent = REGISTERED_GAMES.length;
+      grid.innerHTML = '';
+
+      REGISTERED_GAMES.forEach(({ meta, GameClass }) => {
+        const card = document.createElement('div');
+        card.className = 'game-card';
+        card.innerHTML = `
+          <div class="card-thumbnail" style="background: ${meta.thumbnailColor}">
+            ${meta.icon}
+          </div>
+          <div class="card-body">
+            <span class="card-category">${meta.category}</span>
+            <h3 class="card-title">${meta.title}</h3>
+            <p class="card-desc">${meta.description}</p>
+            <div class="card-footer">
+              <span>By ${meta.author}</span>
+              <span class="play-badge">PLAY ▶</span>
+            </div>
+          </div>
+        `;
+        card.addEventListener('click', () => openModal(meta, GameClass));
+        grid.appendChild(card);
+      });
+
+      document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+      document.getElementById('game-modal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('game-modal')) closeModal();
+      });
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+      });
+    }
+
+    function openModal(meta, GameClass) {
+      closeModal();
+      document.getElementById('modal-game-name').textContent = meta.title;
+      document.getElementById('game-modal').classList.add('active');
+      const container = document.getElementById('modal-game-container');
+      currentGame = new GameClass();
+      currentGame.mount(container);
+    }
+
+    function closeModal() {
+      if (currentGame) {
+        currentGame.unmount();
+        currentGame = null;
+      }
+      document.getElementById('game-modal').classList.remove('active');
+      document.getElementById('modal-game-container').innerHTML = '';
+    }
+
+    window.onload = initArcade;
+  </script>
+</body>
+</html>

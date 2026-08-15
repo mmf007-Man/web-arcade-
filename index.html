@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>👾 웹 오락실 (Web Arcade Lounge)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <header class="arcade-header">
+      <div class="arcade-logo">
+        <span>🕹️</span> ARCADE LOUNGE
+      </div>
+      <div class="arcade-tagline">
+        설치 0개! 모두가 만들어가는 No-Build 웹 오락실
+      </div>
+    </header>
+
+    <main class="arcade-container">
+      <section class="hero-banner">
+        <h1 class="hero-title">WELCOME TO ARCADE LOUNGE 🎮</h1>
+        <p class="hero-subtitle">
+          원하는 게임을 클릭하여 즐기세요! 개발자라면 자신만의 게임 폴더를 <code>games/</code>에 추가하고 <code>games/manifest.json</code>에 등록하여 새로운 게임을 즉시 게재할 수 있습니다.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="section-title">
+          <span>🎯</span> 게임 카탈로그 (<span id="game-count">0</span>)
+        </h2>
+        <div class="game-grid" id="game-grid">
+          <!-- 동적으로 게임 카드들이 여기에 렌더링됩니다 -->
+        </div>
+      </section>
+    </main>
+
+    <!-- 게임 실행 모달 -->
+    <div class="modal-overlay" id="game-modal">
+      <div class="modal-window">
+        <div class="modal-header">
+          <div class="modal-title" id="modal-title">
+            <span>🎮</span> <span id="modal-game-name">게임 제목</span>
+          </div>
+          <button class="modal-close-btn" id="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-content" id="modal-game-container">
+          <!-- 선택한 게임 DOM이 이 위치에 mount 됩니다 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 순수 브라우저 ES Module 지원 -->
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>
