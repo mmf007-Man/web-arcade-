@@ -62,14 +62,13 @@ body {
   }
 }
 
-/* 상단 헤더 슬림화 */
+/* 상단 헤더 슬림화 (고정) */
 .arcade-header {
+  flex-shrink: 0;
   background: rgba(15, 23, 42, 0.95);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
   padding: 12px 18px;
-  position: sticky;
-  top: 0;
   z-index: 10;
   display: flex;
   flex-direction: column;
@@ -92,49 +91,77 @@ body {
   color: var(--text-secondary);
 }
 
-.arcade-container {
-  padding: 16px 14px;
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* 히어로 배너 */
+/* 히어로 배너 (상단 고정, 스크롤되지 않음) */
 .hero-banner {
+  flex-shrink: 0;
+  margin: 12px 14px 2px 14px;
   background: linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
   border: 1px solid rgba(56, 189, 248, 0.3);
   border-radius: var(--border-radius);
-  padding: 16px;
+  padding: 12px 14px;
 }
 
 .hero-title {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 800;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .hero-subtitle {
   color: var(--text-secondary);
-  font-size: 0.78rem;
-  line-height: 1.4;
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+/* ⭐️ 카탈로그 스크롤 영역 (유일하게 스크롤 및 마우스/터치 드래그 가능) */
+.arcade-container {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 14px 24px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: grab;
+}
+
+.arcade-container.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+/* 세련된 슬림 네온 스크롤바 */
+.arcade-container::-webkit-scrollbar {
+  width: 5px;
+}
+.arcade-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.arcade-container::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.3);
+  border-radius: 10px;
+}
+.arcade-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.6);
 }
 
 /* 섹션 타이틀 */
 .section-title {
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   gap: 8px;
+  padding-bottom: 4px;
 }
 
 /* 게임 리스트 카드 */
 .game-grid {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .game-card {

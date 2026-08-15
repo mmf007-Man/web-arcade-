@@ -12,6 +12,7 @@
   <body>
     <!-- 9:16 모바일 뷰포트 래퍼 -->
     <div class="mobile-app-wrapper">
+      <!-- 고정 상단 헤더 -->
       <header class="arcade-header">
         <div class="arcade-logo">
           <span>🕹️</span> ARCADE LOUNGE
@@ -21,22 +22,24 @@
         </div>
       </header>
 
-      <main class="arcade-container">
-        <section class="hero-banner">
-          <h1 class="hero-title">MOBILE ARCADE 🎮</h1>
-          <p class="hero-subtitle">
-            원하는 게임을 터치하여 바로 플레이하세요! 9:16 세로 모바일 최적화 뷰포트로 쾌적하게 즐길 수 있습니다.
-          </p>
-        </section>
+      <!-- 고정 상단 배너 (스크롤되지 않음) -->
+      <section class="hero-banner">
+        <h1 class="hero-title">MOBILE ARCADE 🎮</h1>
+        <p class="hero-subtitle">
+          원하는 게임을 터치하여 바로 플레이하세요! 실시간 모바일 9:16 뷰포트
+        </p>
+      </section>
 
-        <section>
+      <!-- ⭐️ 카탈로그 영역 (이 영역만 전용 스크롤 및 마우스/터치 드래그 지원) -->
+      <main class="arcade-container" id="arcade-catalog">
+        <div class="catalog-header">
           <h2 class="section-title">
             <span>🎯</span> 게임 카탈로그 (<span id="game-count">0</span>)
           </h2>
-          <div class="game-grid" id="game-grid">
-            <!-- 동적 모듈 카드가 세로형 모바일 스타일로 렌더링됩니다 -->
-          </div>
-        </section>
+        </div>
+        <div class="game-grid" id="game-grid">
+          <!-- 동적 모듈 카드가 세로형 모바일 스타일로 렌더링됩니다 -->
+        </div>
       </main>
 
       <!-- 모바일 실행 모달 -->
@@ -56,18 +59,5 @@
     </div>
 
     <script type="module" src="./js/main.js"></script>
-    <script>
-      // local file:// fallback for double-clicking index.html directly in Chrome/Edge
-      if (window.location.protocol === 'file:') {
-        window.addEventListener('DOMContentLoaded', () => {
-          setTimeout(() => {
-            const grid = document.getElementById('game-grid');
-            if (!grid || grid.children.length === 0) {
-              window.location.href = './game.html';
-            }
-          }, 150);
-        });
-      }
-    </script>
   </body>
 </html>
