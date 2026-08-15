@@ -6,42 +6,32 @@
 
 ## 📅 작업 기록 (2026년 8월 15일)
 
-### 1. 프로젝트 성격 전환 (지뢰찾기 단일 게임 ➔ 웹 오락실 플랫폼)
-- **배경**: 기존에는 단일 지뢰찾기 웹 게임 프로젝트였으나, 여러 개발자가 독립적으로 게임을 작성하여 제출(Submit)하면 메인 코드 수정 없이 지속적으로 게임이 추가되는 "웹 오락실 라운지"로 성격을 전환.
-- **방향성**: 개발자들이 자신만의 게임 폴더를 커밋/PR 하는 것만으로 오락실 메인 화면에 카드가 자동으로 생성되고 실행되도록 설계.
+### 1. 바이브 코딩(Vibe Coding) 협업 개발 가이드라인 수록 ⭐ (New)
+- **내용**: 
+  - 개발자의 요청에 추가로 필요한 내용이나 의문이 있다면 추측하지 않고 **반드시 개발자에게 먼저 물어보고 의사를 확인**.
+  - 독단적인 판단을 지양하고 **최대한 개발자의 원래 설계 의도와 요청 방향에 맞춰** 개발 진행.
+  - 사전 명시적 승인 없는 자동 제출(Commit & Push) 금지 원칙 명시.
+- **관련 파일**: [`README.md`](file:///Users/jeong-yuyeong/Documents/web-arcade/README.md), [`docs/DEVELOPMENT_GUIDE.md`](file:///Users/jeong-yuyeong/Documents/web-arcade/docs/DEVELOPMENT_GUIDE.md)
 
 ---
 
-### 2. npm 의존성 100% 제거 (No-Build 순수 웹 개편)
-- **배경**: 초기에는 Vite 번들러 기반으로 구축했으나, `npm install`이나 빌드 명령어 없이 브라우저에서 1초 만에 바로 가동되기를 원함.
-- **조치 사항**:
-  - `package.json`, `node_modules`, `vite.config.js` 등 npm 및 번들러 관련 파일 전면 삭제.
-  - 브라우저 표준 **Native ES Modules (`import()`)** 및 **Fetch API** 기반의 100% No-Build 아키텍처로 개편.
-  - `games/manifest.json` 배열에 게임 ID만 등록하면 자동 수집되도록 구현.
+### 2. 🧱 테트리스(Tetris) 게임 개발 및 완성
+- **특징**: 7가지 테트로미노, 회전, 소프트/하드드롭, **하단 그림자(Ghost Piece)**, **다음 블록 미리보기(NEXT)**, **화면 터치 제스처 조작(탭:회전, 스와이프:이동/드롭)** 구현.
+- **관련 파일**: [`games/tetris/index.js`](file:///Users/jeong-yuyeong/Documents/web-arcade/games/tetris/index.js), [`games/tetris/style.css`](file:///Users/jeong-yuyeong/Documents/web-arcade/games/tetris/style.css), [`games/manifest.json`](file:///Users/jeong-yuyeong/Documents/web-arcade/games/manifest.json), [`game.html`](file:///Users/jeong-yuyeong/Documents/web-arcade/game.html)
 
 ---
 
-### 3. 단일 실행 파일 `game.html` 복원 및 독립 구동 지원
-- **배경**: 로컬 컴퓨터 환경에서 서버 실행 없이 `file:///`로 바로 파일만 더블 클릭해서 열었을 때, 브라우저 보안(CORS) 에러 없이 `index.html`과 100% 동일한 오락실 화면 및 게임 플레이가 가능하기를 요구.
-- **조치 사항**:
-  - 모든 메인 UI, 지뢰찾기 모듈, 스네이크 모듈을 단일 Inline 스크립트로 내장한 [`game.html`](file:///Users/jeong-yuyeong/Documents/samplgame/web-arcade/game.html) 파일 새로 작성.
-  - 서버나 설치 0개로 `game.html` 더블 클릭만으로 100% 오락실 메인 화면 및 모든 게임 즉시 가동.
+### 3. 📱 9:16 모바일 세로 프레임 레이아웃 개편
+- **내용**: PC 접속 시 모바일 프레임 중앙 정렬, 모바일 접속 시 100% 터치 세로 비율 최적화.
 
 ---
 
-### 4. 게임 탑재 및 폴더 구조 정비
-- **지뢰찾기 (`games/minesweeper/`)**: 난이도 선택(초급/중급/상급), 타이머, 깃발, 사운드가 포함된 첫 번째 게임 모듈로 이관.
-- **스네이크 (`games/snake/`)**: 동적 게임 수집 및 2번째 출품작 검증용 게임 모듈 추가 작성.
+### 4. 프로젝트 성격 전환 & npm 의존성 100% 제거 (No-Build)
+- **내용**:
+  - `package.json`, `node_modules` 전면 제거 및 순수 브라우저 Native ES Modules (`import()`) 전환.
+  - 로컬 더블클릭 단일 파일 `game.html` 구축.
 
 ---
 
-### 5. 문서 100% 한글화 & 가이드 정비
-- **[README.md](file:///Users/jeong-yuyeong/Documents/samplgame/web-arcade/README.md)**: No-Build 프로젝트 소개 및 게임 추가 방법 가이드.
-- **[DEVELOPMENT_GUIDE.md](file:///Users/jeong-yuyeong/Documents/samplgame/web-arcade/docs/DEVELOPMENT_GUIDE.md)**: 기여자를 위한 4단계 게임 개발 및 `manifest.json` 등록 가이드.
-- **[ARCHITECTURE.md](file:///Users/jeong-yuyeong/Documents/samplgame/web-arcade/docs/ARCHITECTURE.md)** & **[PRD.md](file:///Users/jeong-yuyeong/Documents/samplgame/web-arcade/docs/PRD.md)**: 아키텍처 및 요구사항 정의서.
-
----
-
-### 6. 최상위 루트 디렉터리 명칭 변경
-- **변경 전**: `/Users/jeong-yuyeong/Documents/samplgame/minesweeper`
-- **변경 후**: `/Users/jeong-yuyeong/Documents/samplgame/web-arcade`
+### 5. 최상위 루트 디렉터리 위치 및 명칭 변경
+- **변경 경로**: `/Users/jeong-yuyeong/Documents/web-arcade`

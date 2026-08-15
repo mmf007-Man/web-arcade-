@@ -4,11 +4,16 @@
 
 ---
 
-## 💡 개발 원칙 (Design Principles)
+## 💡 바이브 코딩(Vibe Coding) & 개발 핵심 원칙
 
-1. **설치/빌드 도구 없음**: Node.js나 `npm` 패키지 설치가 필요 없으며, 브라우저 표준 Native ES Module을 사용합니다.
-2. **폴더 내 자율 구성**: 작성하는 모든 게임 관련 소스 코드(JS, CSS, 유틸 등)는 `games/[본인게임폴더]/` 내부에 넣어야 합니다.
-3. **리소스 Cleanup 필수**: `unmount()` 메서드에서 `setInterval`, `requestAnimationFrame`, `window.addEventListener` 등을 반드시 제거하여 다른 게임이나 메인 UI에 영향을 주지 않도록 해야 합니다.
+1. **개발자의 의도 존중 & 적극적 소통**: 
+   - 바이브 코딩 시 개발자의 요청에 대해 추가로 확인이 필요하거나 모호한 부분이 있다면, 멋대로 추측하거나 임의로 판단하지 않고 **반드시 개발자에게 먼저 의사를 물어보고 소통**합니다.
+   - 임의 판단을 지양하고 **최대한 개발자의 원래 설계 의도와 요청 방향에 맞춰** 유연하게 개발을 진행합니다.
+2. **사전 승인 없는 자동 제출(Commit/Push) 금지**:
+   - 코드 작성이나 수정이 끝난 후 개발자의 명시적 요청이나 승인 없이 마음대로 git commit / push를 진행하지 않습니다.
+3. **설치/빌드 도구 없음 (No-Build)**: Node.js나 `npm` 패키지 설치가 필요 없으며, 브라우저 표준 Native ES Module을 사용합니다.
+4. **폴더 내 자율 구성**: 작성하는 모든 게임 관련 소스 코드(JS, CSS, 유틸 등)는 `games/[본인게임폴더]/` 내부에 포함되어야 합니다.
+5. **리소스 Cleanup 필수**: `unmount()` 메서드에서 `setInterval`, `requestAnimationFrame`, `window.addEventListener` 등을 반드시 제거하여 다른 게임이나 메인 UI에 영향을 주지 않도록 해야 합니다.
 
 ---
 
@@ -24,7 +29,6 @@
 ```javascript
 // games/flappy-bird/index.js
 
-// 1. 메타 데이터 정의 및 export (필수)
 export const meta = {
   id: 'flappy-bird',                  // 고유 ID (영문, 하이픈)
   title: '플래피 버드 (Flappy Bird)',   // 메인 화면 표시 이름
@@ -36,15 +40,11 @@ export const meta = {
   version: '1.0.0'
 };
 
-// 2. Game 클래스 정의 및 export (필수)
 export class Game {
   constructor() {
     this.container = null;
   }
 
-  /**
-   * 전용 CSS 파일이 있을 경우 동적 로드 (선택 사항)
-   */
   loadStyle() {
     if (!document.getElementById('style-flappy')) {
       const link = document.createElement('link');
@@ -55,10 +55,6 @@ export class Game {
     }
   }
 
-  /**
-   * 게임이 모달 창에 띄워질 때 호출됩니다.
-   * @param {HTMLElement} container - 게임이 그려질 DOM 컨테이너
-   */
   mount(container) {
     this.loadStyle();
     this.container = container;
@@ -77,11 +73,7 @@ export class Game {
     // 게임 루프 실행...
   }
 
-  /**
-   * 사용자가 모달을 닫거나 게임을 종료할 때 호출됩니다.
-   */
   unmount() {
-    // 타이머, 이벤트 리스너 해제 및 DOM 정리
     if (this.container) {
       this.container.innerHTML = '';
     }
@@ -101,6 +93,6 @@ export class Game {
 ```
 
 ### 4단계: 테스트 및 제출 (PR)
-1. 브라우저에서 `index.html`을 열어 내가 만든 게임 카드가 메인 화면에 뜨는지 확인합니다.
+1. 브라우저에서 `index.html` 또는 `game.html`을 열어 내가 만든 게임 카드가 메인 화면에 뜨는지 확인합니다.
 2. 카드를 클릭해 게임이 정상 플레이되는지, 닫기를 눌렀을 때 오류가 없는지 테스트합니다.
-3. 깃허브 저장소에 `push` 하거나 Pull Request를 제출합니다.
+3. 개발자의 확인 후 깃허브 저장소에 `push` 하거나 Pull Request를 제출합니다.
