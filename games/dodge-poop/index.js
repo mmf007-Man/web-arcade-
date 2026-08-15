@@ -192,7 +192,8 @@ export class Game {
       walkFrame: 0,
       isMoving: false,
       fallAngle: 0, // 쓰러질 때 회전 각도
-      danceTimer: 0 // 승리 춤 타이머
+      danceTimer: 0, // 승리 춤 타이머
+      hasUmbrella: false // ☂️ 코인 10개마다 획득하는 똥 1회 방어 우산
     };
 
     // 낙하물 및 파티클
@@ -215,6 +216,7 @@ export class Game {
     this.onKeyUp = this.onKeyUp.bind(this);
     this.loop = this.loop.bind(this);
     this.animId = null;
+    this.lastTime = 0;
   }
 
   loadStyle() {
@@ -389,6 +391,9 @@ export class Game {
   }
 
   onKeyDown(e) {
+    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'a', 'A', 'd', 'D'].includes(e.key)) {
+      e.preventDefault();
+    }
     if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
       this.keys.left = true;
     } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
@@ -397,6 +402,9 @@ export class Game {
   }
 
   onKeyUp(e) {
+    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'a', 'A', 'd', 'D'].includes(e.key)) {
+      e.preventDefault();
+    }
     if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
       this.keys.left = false;
     } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
@@ -420,6 +428,7 @@ export class Game {
     this.floatingTexts = [];
     this.poopSpawnTimer = 0;
     this.coinSpawnTimer = 0;
+    this.lastTime = 0;
 
     // 플레이어 초기화
     this.player.x = this.vWidth / 2;
@@ -429,6 +438,7 @@ export class Game {
     this.player.walkFrame = 0;
     this.player.fallAngle = 0;
     this.player.danceTimer = 0;
+    this.player.hasUmbrella = false;
 
     this.setGameState('PLAYING');
   }
@@ -441,6 +451,7 @@ export class Game {
 
   startLoop() {
     if (!this.animId) {
+      this.lastTime = 0;
       this.animId = requestAnimationFrame(this.loop);
     }
   }
@@ -450,10 +461,19 @@ export class Game {
       cancelAnimationFrame(this.animId);
       this.animId = null;
     }
+    this.lastTime = 0;
   }
 
-  loop() {
-    this.update();
+  loop(timestamp) {
+    if (!this.lastTime) this.lastTime = timestamp || performance.now();
+    const elapsed = timestamp ? (timestamp - this.lastTime) : 16.667;
+    this.lastTime = timestamp || performance.now();
+
+    // 60 FPS (16.667ms = 1.0) 기준 Delta Time 계산
+    // 탭 이동 후 재진입 시 급격한 위치 튐을 방지하기 위해 0.1 ~ 2.0 범위로 제한
+    const dt = Math.min(2.0, Math.max(0.1, elapsed / 16.667));
+
+    this.update(dt);
     this.draw();
     this.animId = requestAnimationFrame(this.loop);
   }
@@ -461,27 +481,27 @@ export class Game {
   // ========================================================
   // 3. 업데이트 로직
   // ========================================================
-  update() {
+  update(dt = 1.0) {
     // 1. 파티클 및 텍스트 업데이트 (모든 상태에서 갱신)
-    this.updateParticles();
-    this.updateFloatingTexts();
+    this.updateParticles(dt);
+    this.updateFloatingTexts(dt);
 
     if (this.gameState === 'READY') {
-      this.player.walkFrame += 0.05;
+      this.player.walkFrame += 0.05 * dt;
       return;
     }
 
     if (this.gameState === 'GAMEOVER') {
       if (this.player.fallAngle < Math.PI / 2) {
-        this.player.fallAngle += 0.12;
+        this.player.fallAngle += 0.12 * dt;
       }
       return;
     }
 
     if (this.gameState === 'VICTORY') {
-      this.player.danceTimer += 0.1;
+      this.player.danceTimer += 0.1 * dt;
       // 축하 컨페티 지속 생성
-      if (Math.random() < 0.35) {
+      if (Math.random() < 0.35 * dt) {
         this.createConfetti();
       }
       return;
@@ -491,12 +511,12 @@ export class Game {
     // 플레이어 이동
     this.player.isMoving = false;
     if (this.keys.left) {
-      this.player.x -= this.player.speed;
+      this.player.x -= this.player.speed * dt;
       this.player.facing = -1;
       this.player.isMoving = true;
     }
     if (this.keys.right) {
-      this.player.x += this.player.speed;
+      this.player.x += this.player.speed * dt;
       this.player.facing = 1;
       this.player.isMoving = true;
     }
@@ -507,13 +527,13 @@ export class Game {
     if (this.player.x > this.vWidth - pMargin) this.player.x = this.vWidth - pMargin;
 
     if (this.player.isMoving) {
-      this.player.walkFrame += 0.25;
+      this.player.walkFrame += 0.25 * dt;
     } else {
       this.player.walkFrame = 0;
     }
 
     // 똥 스폰 & 이동
-    this.poopSpawnTimer++;
+    this.poopSpawnTimer += dt;
     if (this.poopSpawnTimer >= this.poopSpawnInterval) {
       this.poopSpawnTimer = 0;
       this.spawnPoop();
@@ -521,8 +541,8 @@ export class Game {
 
     for (let i = this.poops.length - 1; i >= 0; i--) {
       const p = this.poops[i];
-      p.y += p.speed;
-      p.rotation += p.rotSpeed;
+      p.y += p.speed * dt;
+      p.rotation += p.rotSpeed * dt;
 
       // 바닥 충돌 (y >= 430)
       if (p.y >= 424) {
@@ -539,6 +559,17 @@ export class Game {
       const dist = Math.hypot(p.x - px, p.y - py);
 
       if (dist < p.radius + 16) {
+        if (this.player.hasUmbrella) {
+          // ☂️ 우산이 똥을 1회 방어!
+          this.player.hasUmbrella = false;
+          this.createPoopSplash(p.x, p.y);
+          this.createUmbrellaSparkle(px, py - 35);
+          this.createFloatingText('☂️ 우산 방어!', px, py - 40, '#38bdf8');
+          this.sound.playSplash();
+          this.poops.splice(i, 1);
+          continue;
+        }
+
         // 피격! 게임 오버
         this.triggerGameOver();
         return;
@@ -546,7 +577,7 @@ export class Game {
     }
 
     // 코인 스폰 & 이동
-    this.coinSpawnTimer++;
+    this.coinSpawnTimer += dt;
     if (this.coinSpawnTimer >= this.coinSpawnInterval) {
       this.coinSpawnTimer = 0;
       this.spawnCoin();
@@ -554,8 +585,8 @@ export class Game {
 
     for (let i = this.coins.length - 1; i >= 0; i--) {
       const c = this.coins[i];
-      c.y += c.speed;
-      c.anim += 0.08;
+      c.y += c.speed * dt;
+      c.anim += 0.08 * dt;
 
       // 바닥에 닿으면 사라짐
       if (c.y >= 430) {
@@ -563,7 +594,7 @@ export class Game {
         continue;
       }
 
-      // 플레이어와 충돌 (코인 획득)
+      // 플레이어와 충돌 (코인 획득 - 우산은 코인을 통과시켜 정상 획득됨)
       const px = this.player.x;
       const py = 405;
       const dist = Math.hypot(c.x - px, c.y - py);
@@ -574,6 +605,15 @@ export class Game {
         this.sound.playCoin();
         this.createCoinSparkle(c.x, c.y);
         this.createFloatingText('+1', c.x, c.y, '#fbbf24');
+
+        // 코인 10개마다 우산 보상 획득!
+        if (this.score % 10 === 0 && this.score < this.targetScore) {
+          this.player.hasUmbrella = true;
+          this.sound.playVictory();
+          this.createFloatingText('☂️ 우산 획득!', px, py - 40, '#38bdf8');
+          this.createUmbrellaSparkle(px, py - 35);
+        }
+
         this.coins.splice(i, 1);
 
         // 50점 달성 시 승리!
@@ -586,8 +626,8 @@ export class Game {
   }
 
   spawnPoop() {
-    // 무작위 적절한 속도 (너무 빠르지 않게 2.2 ~ 3.8 px/frame)
-    const speed = 2.2 + Math.random() * 1.8;
+    // 똥 평균 낙하 속도를 살짝 높임 (2.5 ~ 4.4 px/frame, 평균 3.45 px/frame)
+    const speed = 2.5 + Math.random() * 1.9;
     const radius = 13 + Math.random() * 5;
     const x = radius + Math.random() * (this.vWidth - radius * 2);
 
@@ -630,6 +670,24 @@ export class Game {
         color: Math.random() > 0.4 ? '#854d0e' : '#713f12',
         alpha: 1,
         life: 20 + Math.random() * 10
+      });
+    }
+  }
+
+  createUmbrellaSparkle(x, y) {
+    for (let i = 0; i < 14; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 2 + Math.random() * 4;
+      this.particles.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        gravity: 0.05,
+        size: 3 + Math.random() * 4,
+        color: Math.random() > 0.5 ? '#38bdf8' : '#818cf8',
+        alpha: 1,
+        life: 25 + Math.random() * 15
       });
     }
   }
@@ -682,14 +740,14 @@ export class Game {
     });
   }
 
-  updateParticles() {
+  updateParticles(dt = 1.0) {
     for (let i = this.particles.length - 1; i >= 0; i--) {
       const p = this.particles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += p.gravity || 0;
-      if (p.rot !== undefined) p.rot += p.vRot || 0;
-      p.life--;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += (p.gravity || 0) * dt;
+      if (p.rot !== undefined) p.rot += (p.vRot || 0) * dt;
+      p.life -= dt;
       p.alpha = Math.max(0, p.life / 30);
 
       if (p.life <= 0) {
@@ -698,11 +756,11 @@ export class Game {
     }
   }
 
-  updateFloatingTexts() {
+  updateFloatingTexts(dt = 1.0) {
     for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
       const ft = this.floatingTexts[i];
-      ft.y += ft.vy;
-      ft.life--;
+      ft.y += ft.vy * dt;
+      ft.life -= dt;
       ft.alpha = Math.max(0, ft.life / 30);
 
       if (ft.life <= 0) {
@@ -1041,6 +1099,59 @@ export class Game {
     ctx.lineTo(hand2X * 0.6, shoulderY + 7);
     ctx.lineTo(hand2X, hand2Y);
     ctx.stroke();
+
+    // 5. ☂️ 우산 렌더링 (hasUmbrella 일 때 머리 위 방어 우산)
+    if (p.hasUmbrella) {
+      ctx.save();
+      const umbY = headCenterY - 14;
+
+      // 우산 신비로운 네온 푸른빛 아우라
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 14;
+
+      // 우산 돔 그라데이션
+      const umbGrad = ctx.createLinearGradient(0, umbY - 22, 0, umbY);
+      umbGrad.addColorStop(0, '#38bdf8');
+      umbGrad.addColorStop(1, '#0284c7');
+      ctx.fillStyle = umbGrad;
+
+      ctx.beginPath();
+      ctx.arc(0, umbY, 26, Math.PI * 1.05, Math.PI * 1.95);
+      ctx.closePath();
+      ctx.fill();
+
+      // 우산 하단 곡선 굴곡
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      for (let i = 0; i < 4; i++) {
+        const startX = -26 + i * 13;
+        ctx.arc(startX + 6.5, umbY, 6.5, Math.PI, 0, true);
+      }
+      ctx.fill();
+
+      // 우산 골선
+      ctx.strokeStyle = '#f8fafc';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.arc(0, umbY, 26, Math.PI * 1.05, Math.PI * 1.95);
+      ctx.stroke();
+
+      // 우산 손잡이 댓살 (손 위치까지)
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, umbY);
+      ctx.lineTo(0, headCenterY + 4);
+      ctx.stroke();
+
+      // 우산 꼭지 팁
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(0, umbY - 26, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
   }
 
   // 똥 맞고 쓰러진 졸라맨
