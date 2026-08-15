@@ -56,5 +56,18 @@
     </div>
 
     <script type="module" src="./js/main.js"></script>
+    <script>
+      // local file:// fallback for double-clicking index.html directly in Chrome/Edge
+      if (window.location.protocol === 'file:') {
+        window.addEventListener('DOMContentLoaded', () => {
+          setTimeout(() => {
+            const grid = document.getElementById('game-grid');
+            if (!grid || grid.children.length === 0) {
+              window.location.href = './game.html';
+            }
+          }, 150);
+        });
+      }
+    </script>
   </body>
 </html>
