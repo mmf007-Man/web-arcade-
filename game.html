@@ -174,7 +174,7 @@
     .modal-close-btn { background: transparent; border: none; color: var(--text-secondary); font-size: 1.4rem; cursor: pointer; padding: 2px 6px; }
     .modal-content { padding: 16px; overflow-y: auto; display: flex; justify-content: center; align-items: center; flex: 1; }
 
-    /* 지뢰찾기 모바일 9:16 최적화 스타일 */
+    /* 지뢰찾기 */
     .ms-game-container { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
     .ms-difficulty-selector { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
     .ms-difficulty-btn { background: #334155; border: 1px solid #475569; color: #f8fafc; padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
@@ -189,7 +189,7 @@
     .ms-cell.flagged { color: #f59e0b; }
     .ms-cell[data-count="1"] { color: #38bdf8; } .ms-cell[data-count="2"] { color: #4ade80; } .ms-cell[data-count="3"] { color: #f87171; }
 
-    /* 스네이크 모바일 9:16 최적화 스타일 */
+    /* 스네이크 */
     .snake-container { display: flex; flex-direction: column; align-items: center; gap: 14px; color: #f8fafc; width: 100%; }
     .snake-score-board { display: flex; gap: 16px; font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: bold; }
     .snake-canvas { background-color: #0f172a; border: 2px solid #38bdf8; border-radius: 8px; max-width: 100%; height: auto; }
@@ -218,10 +218,22 @@
     .dp-touch-btn { flex: 1; background: #1e293b; border: 2px solid #334155; color: #f8fafc; padding: 12px 0; border-radius: 12px; font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: pointer; touch-action: manipulation; }
     .dp-touch-btn:active, .dp-touch-btn.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; transform: scale(0.96); }
     .dp-keyboard-hint { font-size: 0.72rem; color: #64748b; margin-top: 6px; text-align: center; }
+
+    /* 테트리스 터치 제스처 전용 */
+    .tetris-container { display: flex; flex-direction: column; align-items: center; gap: 10px; color: #f8fafc; width: 100%; }
+    .tetris-dashboard { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 220px; background: rgba(15, 23, 42, 0.7); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08); }
+    .tetris-score-info { display: flex; flex-direction: column; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: bold; }
+    .tetris-next-box { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.75rem; color: #38bdf8; font-weight: bold; }
+    .tetris-next-canvas { background-color: #0f172a; border: 1px solid #475569; border-radius: 6px; }
+    .tetris-canvas { background-color: #0f172a; border: 2px solid #a855f7; border-radius: 8px; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3); touch-action: none; }
+    .tetris-gesture-guide { background: rgba(168, 85, 247, 0.1); border: 1px dashed rgba(168, 85, 247, 0.3); border-radius: 10px; padding: 8px 12px; width: 100%; max-width: 220px; font-size: 0.75rem; }
+    .tetris-gesture-guide p { color: #a855f7; margin-bottom: 4px; }
+    .tetris-gesture-guide ul { list-style: none; display: flex; flex-direction: column; gap: 2px; color: #94a3b8; }
+    .t-btn-wide { width: 100%; max-width: 220px; background: #a855f7; color: #0f172a; border: none; padding: 10px; font-size: 0.95rem; font-weight: bold; border-radius: 8px; cursor: pointer; }
+    .t-btn-wide:active { background: #9333ea; color: #ffffff; }
   </style>
 </head>
 <body>
-  <!-- 9:16 모바일 프레임 래퍼 -->
   <div class="mobile-app-wrapper">
     <header class="arcade-header">
       <div class="arcade-logo">
@@ -236,7 +248,7 @@
       <section class="hero-banner">
         <h1 class="hero-title">MOBILE ARCADE 🎮</h1>
         <p class="hero-subtitle">
-          서버나 제한 없이 더블클릭만으로 실행되는 9:16 모바일 스마트폰 비율의 웹 오락실입니다.
+          더블클릭만으로 즉시 구동되는 9:16 모바일 스마트폰 비율의 웹 오락실입니다.
         </p>
       </section>
 
@@ -262,7 +274,7 @@
   </div>
 
   <script>
-    // --- 1. 지뢰찾기 게임 클래스 ---
+    // --- 1. 지뢰찾기 ---
     class MinesweeperGamePlugin {
       constructor() {
         this.container = null; this.level = 'EASY';
@@ -390,7 +402,7 @@
       stopTimer() { if (this.timerId) clearInterval(this.timerId); this.timerId = null; }
     }
 
-    // --- 2. 스네이크 게임 클래스 ---
+    // --- 2. 스네이크 ---
     class SnakeGamePlugin {
       constructor() {
         this.container = null; this.gridSize = 18; this.tileCount = 14;
@@ -878,6 +890,213 @@
       }
     }
 
+    // --- 4. 테트리스 (터치 제스처 전용) ---
+    class TetrisGamePlugin {
+      constructor() {
+        this.container = null; this.cols = 10; this.rows = 20; this.blockSize = 18;
+        this.board = Array.from({ length: 20 }, () => Array(10).fill(0));
+        this.score = 0; this.lines = 0; this.currentPiece = null; this.nextPiece = null;
+        this.interval = null; this.isGameOver = false;
+        this.touchSX = 0; this.touchSY = 0; this.touchSTime = 0;
+        this.shapes = [[], [[1,1,1,1]], [[1,0,0],[1,1,1]], [[0,0,1],[1,1,1]], [[1,1],[1,1]], [[0,1,1],[1,1,0]], [[0,1,0],[1,1,1]], [[1,1,0],[0,1,1]]];
+        this.colors = ['none', '#06b6d4', '#3b82f6', '#f97316', '#eab308', '#22c55e', '#a855f7', '#ef4444'];
+        this.onKey = this.onKey.bind(this);
+        this.onTouchStart = this.onTouchStart.bind(this);
+        this.onTouchEnd = this.onTouchEnd.bind(this);
+      }
+      mount(container) {
+        this.container = container;
+        this.container.innerHTML = `
+          <div class="tetris-container">
+            <div class="tetris-dashboard">
+              <div class="tetris-score-info">
+                <span>점수: <span id="t-score">0</span></span>
+                <span>줄: <span id="t-lines">0</span></span>
+              </div>
+              <div class="tetris-next-box">
+                <span>NEXT</span>
+                <canvas id="tetris-next-canvas" width="50" height="50" class="tetris-next-canvas"></canvas>
+              </div>
+            </div>
+            <canvas id="tetris-canvas" width="180" height="360" class="tetris-canvas"></canvas>
+            <div class="tetris-gesture-guide">
+              <p>👇 <b>화면 터치 제스처 조작</b></p>
+              <ul>
+                <li>👆 <b>짧은 탭</b>: 블록 회전</li>
+                <li>👈👉 <b>좌/우 스와이프</b>: 블록 이동</li>
+                <li>👇 <b>아래 스와이프</b>: 하드 드롭</li>
+              </ul>
+            </div>
+            <button class="t-btn-wide" onclick="currentGame.reset()">다시 시작</button>
+          </div>
+        `;
+        this.canvas = this.container.querySelector('#tetris-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.nextCanvas = this.container.querySelector('#tetris-next-canvas');
+        this.nextCtx = this.nextCanvas.getContext('2d');
+
+        this.canvas.addEventListener('touchstart', this.onTouchStart, { passive: false });
+        this.canvas.addEventListener('touchend', this.onTouchEnd, { passive: false });
+        window.addEventListener('keydown', this.onKey);
+        this.reset();
+      }
+      unmount() {
+        this.stop(); window.removeEventListener('keydown', this.onKey);
+        if (this.canvas) {
+          this.canvas.removeEventListener('touchstart', this.onTouchStart);
+          this.canvas.removeEventListener('touchend', this.onTouchEnd);
+        }
+        if (this.container) this.container.innerHTML = '';
+      }
+      onTouchStart(e) {
+        if (this.isGameOver) return; e.preventDefault();
+        const t = e.touches[0]; this.touchSX = t.clientX; this.touchSY = t.clientY; this.touchSTime = Date.now();
+      }
+      onTouchEnd(e) {
+        if (this.isGameOver) return; e.preventDefault();
+        const t = e.changedTouches[0];
+        const dx = t.clientX - this.touchSX, dy = t.clientY - this.touchSY, dur = Date.now() - this.touchSTime;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          if (dx > 25) this.moveRight(); else if (dx < -25) this.moveLeft();
+        } else {
+          if (dy > 25) this.hardDrop();
+          else if (Math.abs(dx) < 15 && Math.abs(dy) < 15 && dur < 300) this.rotate();
+        }
+      }
+      reset() {
+        this.stop(); this.board = Array.from({ length: 20 }, () => Array(10).fill(0));
+        this.score = 0; this.lines = 0; this.isGameOver = false;
+        this.container.querySelector('#t-score').textContent = 0;
+        this.container.querySelector('#t-lines').textContent = 0;
+        this.nextPiece = this.genPiece();
+        this.spawn();
+        this.interval = setInterval(() => this.moveDown(), 500);
+      }
+      stop() { if (this.interval) clearInterval(this.interval); this.interval = null; }
+      genPiece() {
+        const id = Math.floor(Math.random() * 7) + 1;
+        const shape = this.shapes[id];
+        return { typeId: id, shape, x: Math.floor((10 - shape[0].length) / 2), y: 0 };
+      }
+      spawn() {
+        this.currentPiece = this.nextPiece;
+        this.nextPiece = this.genPiece();
+        if (this.checkColl(this.currentPiece.x, this.currentPiece.y, this.currentPiece.shape)) {
+          this.isGameOver = true; this.stop(); alert(`🎮 Game Over! 점수: ${this.score}`);
+        }
+        this.drawNext();
+      }
+      onKey(e) {
+        if (this.isGameOver) return;
+        if (e.key === 'ArrowLeft') this.moveLeft();
+        else if (e.key === 'ArrowRight') this.moveRight();
+        else if (e.key === 'ArrowDown') this.moveDown();
+        else if (e.key === 'ArrowUp' || e.key === 'z') this.rotate();
+        else if (e.key === ' ') { e.preventDefault(); this.hardDrop(); }
+      }
+      moveLeft() { if (!this.checkColl(this.currentPiece.x - 1, this.currentPiece.y, this.currentPiece.shape)) { this.currentPiece.x--; this.draw(); } }
+      moveRight() { if (!this.checkColl(this.currentPiece.x + 1, this.currentPiece.y, this.currentPiece.shape)) { this.currentPiece.x++; this.draw(); } }
+      moveDown() {
+        if (!this.checkColl(this.currentPiece.x, this.currentPiece.y + 1, this.currentPiece.shape)) {
+          this.currentPiece.y++; this.draw();
+        } else {
+          this.lock(); this.clear(); this.spawn(); this.draw();
+        }
+      }
+      hardDrop() {
+        while (!this.checkColl(this.currentPiece.x, this.currentPiece.y + 1, this.currentPiece.shape)) { this.currentPiece.y++; }
+        this.lock(); this.clear(); this.spawn(); this.draw();
+      }
+      rotate() {
+        const rot = this.currentPiece.shape[0].map((_, i) => this.currentPiece.shape.map(r => r[i]).reverse());
+        if (!this.checkColl(this.currentPiece.x, this.currentPiece.y, rot)) { this.currentPiece.shape = rot; this.draw(); }
+      }
+      getGhostY() {
+        if (!this.currentPiece) return 0;
+        let gy = this.currentPiece.y;
+        while (!this.checkColl(this.currentPiece.x, gy + 1, this.currentPiece.shape)) gy++;
+        return gy;
+      }
+      checkColl(x, y, shape) {
+        for (let r = 0; r < shape.length; r++) {
+          for (let c = 0; c < shape[r].length; c++) {
+            if (shape[r][c]) {
+              const nx = x + c, ny = y + r;
+              if (nx < 0 || nx >= 10 || ny >= 20) return true;
+              if (ny >= 0 && this.board[ny][nx] !== 0) return true;
+            }
+          }
+        }
+        return false;
+      }
+      lock() {
+        const { x, y, shape, typeId } = this.currentPiece;
+        for (let r = 0; r < shape.length; r++)
+          for (let c = 0; c < shape[r].length; c++)
+            if (shape[r][c] && y + r >= 0) this.board[y + r][x + c] = typeId;
+      }
+      clear() {
+        let cleared = 0;
+        for (let r = 19; r >= 0; r--) {
+          if (this.board[r].every(c => c !== 0)) {
+            this.board.splice(r, 1); this.board.unshift(Array(10).fill(0));
+            cleared++; r++;
+          }
+        }
+        if (cleared > 0) {
+          const m = [0, 100, 300, 500, 800];
+          this.score += m[cleared] || cleared * 200; this.lines += cleared;
+          this.container.querySelector('#t-score').textContent = this.score;
+          this.container.querySelector('#t-lines').textContent = this.lines;
+        }
+      }
+      drawNext() {
+        if (!this.nextPiece || !this.nextCtx) return;
+        this.nextCtx.fillStyle = '#0f172a'; this.nextCtx.fillRect(0,0,50,50);
+        const s = this.nextPiece.shape, clr = this.colors[this.nextPiece.typeId], sz = 10;
+        const ox = (50 - s[0].length * sz) / 2, oy = (50 - s.length * sz) / 2;
+        for (let r = 0; r < s.length; r++)
+          for (let c = 0; c < s[r].length; c++)
+            if (s[r][c]) { this.nextCtx.fillStyle = clr; this.nextCtx.fillRect(ox + c*sz, oy + r*sz, sz-1, sz-1); }
+      }
+      draw() {
+        this.ctx.fillStyle = '#0f172a'; this.ctx.fillRect(0, 0, 180, 360);
+        for (let r = 0; r < 20; r++) {
+          for (let c = 0; c < 10; c++) {
+            if (this.board[r][c] !== 0) {
+              this.ctx.fillStyle = this.colors[this.board[r][c]];
+              this.ctx.fillRect(c * 18 + 1, r * 18 + 1, 16, 16);
+            }
+          }
+        }
+        if (this.currentPiece) {
+          const gy = this.getGhostY(), { x, shape, typeId } = this.currentPiece;
+          for (let r = 0; r < shape.length; r++) {
+            for (let c = 0; c < shape[r].length; c++) {
+              if (shape[r][c]) {
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+                this.ctx.fillRect((x + c) * 18 + 1, (gy + r) * 18 + 1, 16, 16);
+                this.ctx.strokeStyle = this.colors[typeId];
+                this.ctx.lineWidth = 1;
+                this.ctx.strokeRect((x + c) * 18 + 1, (gy + r) * 18 + 1, 16, 16);
+              }
+            }
+          }
+        }
+        if (this.currentPiece) {
+          const { x, y, shape, typeId } = this.currentPiece;
+          for (let r = 0; r < shape.length; r++) {
+            for (let c = 0; c < shape[r].length; c++) {
+              if (shape[r][c]) {
+                this.ctx.fillStyle = this.colors[typeId];
+                this.ctx.fillRect((x + c) * 18 + 1, (y + r) * 18 + 1, 16, 16);
+              }
+            }
+          }
+        }
+      }
+    }
+
     const REGISTERED_GAMES = [
       {
         meta: {
@@ -914,6 +1133,18 @@
           thumbnailColor: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)'
         },
         GameClass: DodgePoopGamePlugin
+      },
+      {
+        meta: {
+          id: 'tetris',
+          title: '테트리스 (Tetris)',
+          description: '블록을 차곡차곡 쌓아 줄을 지워보세요! 터치 제스처 조작 지원',
+          author: 'Arcade Contributor',
+          category: '퍼즐 / 아케이드',
+          icon: '🧱',
+          thumbnailColor: 'linear-gradient(135deg, #a855f7 0%, #581c87 100%)'
+        },
+        GameClass: TetrisGamePlugin
       }
     ];
 
