@@ -35,6 +35,7 @@
       background-color: var(--bg-main);
       color: var(--text-primary);
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -45,6 +46,8 @@
       width: 100%;
       max-width: var(--mobile-width);
       min-height: 100vh;
+      min-height: 100dvh;
+      height: 100dvh;
       background-color: #0b0f19;
       border-left: 1px solid var(--border-color);
       border-right: 1px solid var(--border-color);
@@ -67,53 +70,53 @@
     }
 
     .arcade-header {
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(15, 23, 42, 0.95);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border-color);
-      padding: 16px 20px;
+      padding: 12px 18px;
       position: sticky;
       top: 0;
       z-index: 10;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 2px;
     }
 
     .arcade-logo {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 900;
       background: linear-gradient(135deg, #38bdf8 0%, #a855f7 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .arcade-tagline { font-size: 0.75rem; color: var(--text-secondary); }
+    .arcade-tagline { font-size: 0.72rem; color: var(--text-secondary); }
 
     .arcade-container {
-      padding: 20px 16px;
+      padding: 16px 14px;
       flex: 1;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
     }
 
     .hero-banner {
       background: linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
       border: 1px solid rgba(56, 189, 248, 0.3);
       border-radius: var(--border-radius);
-      padding: 20px;
+      padding: 16px;
     }
 
-    .hero-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 6px; }
-    .hero-subtitle { color: var(--text-secondary); font-size: 0.82rem; line-height: 1.5; }
+    .hero-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 4px; }
+    .hero-subtitle { color: var(--text-secondary); font-size: 0.78rem; line-height: 1.4; }
 
-    .section-title { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .section-title { font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
 
-    .game-grid { display: flex; flex-direction: column; gap: 16px; }
+    .game-grid { display: flex; flex-direction: column; gap: 14px; }
 
     .game-card {
       background: var(--bg-card);
@@ -124,7 +127,7 @@
       transition: all 0.25s ease;
       display: flex;
       flex-direction: row;
-      height: 110px;
+      height: 105px;
     }
 
     .game-card:active, .game-card:hover {
@@ -134,17 +137,17 @@
     }
 
     .card-thumbnail {
-      width: 100px;
+      width: 95px;
       height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2.8rem;
+      font-size: 2.6rem;
       flex-shrink: 0;
     }
 
     .card-body {
-      padding: 12px 14px;
+      padding: 10px 12px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -152,67 +155,67 @@
       overflow: hidden;
     }
 
-    .card-category { font-size: 0.68rem; font-weight: 700; color: var(--accent-neon); text-transform: uppercase; }
-    .card-title { font-size: 1rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-desc { font-size: 0.76rem; color: var(--text-secondary); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .card-footer { display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--text-secondary); }
+    .card-category { font-size: 0.65rem; font-weight: 700; color: var(--accent-neon); text-transform: uppercase; }
+    .card-title { font-size: 0.95rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-desc { font-size: 0.74rem; color: var(--text-secondary); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; color: var(--text-secondary); }
     .play-badge { background: rgba(56, 189, 248, 0.15); color: var(--accent-neon); padding: 3px 8px; border-radius: 12px; font-weight: 700; }
 
     .modal-overlay {
       position: absolute; inset: 0; background: rgba(0, 0, 0, 0.88); backdrop-filter: blur(8px);
-      display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; padding: 12px;
+      display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; padding: 8px;
     }
 
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
     .modal-window {
       background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--border-radius);
-      width: 100%; max-height: 95%; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+      width: 100%; height: 100%; max-height: 98%; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
     }
 
-    .modal-header { padding: 14px 18px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-    .modal-title { font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .modal-header { padding: 10px 14px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    .modal-title { font-size: 0.98rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
     .modal-close-btn { background: transparent; border: none; color: var(--text-secondary); font-size: 1.4rem; cursor: pointer; padding: 2px 6px; }
-    .modal-content { padding: 16px; overflow-y: auto; display: flex; justify-content: center; align-items: center; flex: 1; }
+    .modal-content { padding: 8px 10px; overflow-y: auto; display: flex; justify-content: center; align-items: center; flex: 1; }
 
     /* 지뢰찾기 */
-    .ms-game-container { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
+    .ms-game-container { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
     .ms-difficulty-selector { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
     .ms-difficulty-btn { background: #334155; border: 1px solid #475569; color: #f8fafc; padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
     .ms-difficulty-btn.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; }
-    .ms-game-header { width: 100%; display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.6); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05); }
-    .ms-status-box { display: flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; }
-    .ms-reset-btn { background: #334155; border: 1px solid #475569; color: #f8fafc; font-size: 1.3rem; padding: 4px 10px; border-radius: 8px; cursor: pointer; }
+    .ms-game-header { width: 100%; display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.6); padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05); }
+    .ms-status-box { display: flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700; }
+    .ms-reset-btn { background: #334155; border: 1px solid #475569; color: #f8fafc; font-size: 1.2rem; padding: 3px 8px; border-radius: 8px; cursor: pointer; }
     .ms-board { display: grid; gap: 2px; background-color: #1e293b; padding: 6px; border-radius: 8px; border: 2px solid #334155; overflow-x: auto; max-width: 100%; }
-    .ms-cell { width: 32px; height: 32px; background-color: #334155; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 0.95rem; cursor: pointer; }
+    .ms-cell { width: 30px; height: 30px; background-color: #334155; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 0.9rem; cursor: pointer; }
     .ms-cell.revealed { background-color: #1e293b; cursor: default; }
     .ms-cell.mine { background-color: #ef4444 !important; }
     .ms-cell.flagged { color: #f59e0b; }
     .ms-cell[data-count="1"] { color: #38bdf8; } .ms-cell[data-count="2"] { color: #4ade80; } .ms-cell[data-count="3"] { color: #f87171; }
 
     /* 스네이크 */
-    .snake-container { display: flex; flex-direction: column; align-items: center; gap: 14px; color: #f8fafc; width: 100%; }
-    .snake-score-board { display: flex; gap: 16px; font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: bold; }
+    .snake-container { display: flex; flex-direction: column; align-items: center; gap: 10px; color: #f8fafc; width: 100%; }
+    .snake-score-board { display: flex; gap: 16px; font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: bold; }
     .snake-canvas { background-color: #0f172a; border: 2px solid #38bdf8; border-radius: 8px; max-width: 100%; height: auto; }
     .snake-btn { background: #38bdf8; color: #0f172a; border: none; padding: 6px 14px; font-weight: bold; border-radius: 6px; cursor: pointer; }
 
-    /* 테트리스 */
-    .tetris-container { display: flex; flex-direction: column; align-items: center; gap: 10px; color: #f8fafc; width: 100%; }
-    .tetris-dashboard { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 220px; background: rgba(15, 23, 42, 0.7); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08); }
-    .tetris-score-info { display: flex; flex-direction: column; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: bold; }
-    .tetris-next-box { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.75rem; color: #38bdf8; font-weight: bold; }
+    /* 테트리스 콤팩트 */
+    .tetris-container { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #f8fafc; width: 100%; max-height: 100%; user-select: none; -webkit-user-select: none; }
+    .tetris-dashboard { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 220px; background: rgba(15, 23, 42, 0.7); padding: 5px 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08); }
+    .tetris-score-info { display: flex; flex-direction: column; gap: 2px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: bold; }
+    .tetris-next-box { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 0.7rem; color: #38bdf8; font-weight: bold; }
     .tetris-next-canvas { background-color: #0f172a; border: 1px solid #475569; border-radius: 6px; }
-    .tetris-canvas { background-color: #0f172a; border: 2px solid #a855f7; border-radius: 8px; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3); touch-action: none; }
-    .tetris-gesture-guide { background: rgba(168, 85, 247, 0.1); border: 1px dashed rgba(168, 85, 247, 0.3); border-radius: 10px; padding: 8px 12px; width: 100%; max-width: 220px; font-size: 0.75rem; }
-    .tetris-gesture-guide p { color: #a855f7; margin-bottom: 4px; }
-    .tetris-gesture-guide ul { list-style: none; display: flex; flex-direction: column; gap: 2px; color: #94a3b8; }
-    .t-btn-wide { width: 100%; max-width: 220px; background: #a855f7; color: #0f172a; border: none; padding: 10px; font-size: 0.95rem; font-weight: bold; border-radius: 8px; cursor: pointer; }
+    .tetris-canvas { background-color: #0f172a; border: 2px solid #a855f7; border-radius: 8px; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3); touch-action: none !important; -webkit-user-select: none; user-select: none; }
+    .tetris-gesture-guide { background: rgba(168, 85, 247, 0.1); border: 1px dashed rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 6px 10px; width: 100%; max-width: 220px; font-size: 0.7rem; }
+    .tetris-gesture-guide p { color: #a855f7; margin-bottom: 2px; }
+    .tetris-gesture-guide ul { list-style: none; display: flex; flex-direction: column; gap: 1px; color: #94a3b8; }
+    .t-btn-wide { width: 100%; max-width: 220px; background: #a855f7; color: #0f172a; border: none; padding: 8px; font-size: 0.9rem; font-weight: bold; border-radius: 8px; cursor: pointer; }
 
     /* 똥피하기 */
-    .poop-container { display: flex; flex-direction: column; align-items: center; gap: 10px; color: #f8fafc; width: 100%; }
-    .poop-header-board { display: flex; justify-content: space-around; width: 100%; max-width: 250px; background: rgba(15, 23, 42, 0.7); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: bold; }
+    .poop-container { display: flex; flex-direction: column; align-items: center; gap: 8px; color: #f8fafc; width: 100%; }
+    .poop-header-board { display: flex; justify-content: space-around; width: 100%; max-width: 250px; background: rgba(15, 23, 42, 0.7); padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: bold; }
     .poop-canvas { background-color: #1e293b; border: 2px solid #f59e0b; border-radius: 8px; box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); touch-action: none; }
-    .poop-controls { display: flex; gap: 10px; width: 100%; max-width: 250px; }
-    .p-btn { flex: 1; background: #f59e0b; color: #0f172a; border: none; padding: 10px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; }
+    .poop-controls { display: flex; gap: 8px; width: 100%; max-width: 250px; }
+    .p-btn { flex: 1; background: #f59e0b; color: #0f172a; border: none; padding: 8px; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -296,7 +299,7 @@
       renderBoard() {
         const boardEl = this.container.querySelector('#ms-board');
         if (!boardEl) return;
-        boardEl.style.gridTemplateColumns = `repeat(${this.cols}, 32px)`;
+        boardEl.style.gridTemplateColumns = `repeat(${this.cols}, 30px)`;
         boardEl.innerHTML = '';
         for (let r = 0; r < this.rows; r++) {
           for (let c = 0; c < this.cols; c++) {
@@ -444,493 +447,81 @@
       }
     }
 
-    // --- 3. 똥 피하기 게임 클래스 ---
-    class DodgePoopGamePlugin {
+    // --- 3. 똥피하기 ---
+    class DodgePoopPlugin {
       constructor() {
-        this.container = null; this.canvas = null; this.ctx = null;
-        this.vWidth = 360; this.vHeight = 480;
-        this.gameState = 'READY'; this.targetScore = 50; this.score = 0;
-        this.player = { x: 180, y: 430, vx: 0, speed: 4.8, facing: 1, walkFrame: 0, isMoving: false, fallAngle: 0, danceTimer: 0, hasUmbrella: false };
-        this.poops = []; this.coins = []; this.particles = []; this.floatingTexts = [];
-        this.poopSpawnTimer = 0; this.poopSpawnInterval = 32;
-        this.coinSpawnTimer = 0; this.coinSpawnInterval = 130;
-        this.keys = { left: false, right: false };
-        this.isMuted = false; this.audioCtx = null;
-        this.onKeyDown = this.onKeyDown.bind(this);
-        this.onKeyUp = this.onKeyUp.bind(this);
-        this.loop = this.loop.bind(this);
-        this.animId = null;
-        this.lastTime = 0;
+        this.container = null; this.score = 0; this.coins = 0; this.interval = null;
+        this.playerX = 120; this.poops = []; this.coinItems = []; this.isGameOver = false;
       }
-
-      initAudio() {
-        if (!this.audioCtx) {
-          const AudioCtx = window.AudioContext || window.webkitAudioContext;
-          if (AudioCtx) this.audioCtx = new AudioCtx();
-        }
-        if (this.audioCtx && this.audioCtx.state === 'suspended') this.audioCtx.resume();
-      }
-
-      playSound(type) {
-        if (this.isMuted) return;
-        this.initAudio();
-        if (!this.audioCtx) return;
-        const now = this.audioCtx.currentTime;
-        if (type === 'coin') {
-          const osc = this.audioCtx.createOscillator();
-          const gain = this.audioCtx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(987.77, now);
-          osc.frequency.setValueAtTime(1318.51, now + 0.08);
-          gain.gain.setValueAtTime(0.18, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
-          osc.connect(gain); gain.connect(this.audioCtx.destination);
-          osc.start(now); osc.stop(now + 0.3);
-        } else if (type === 'splash') {
-          const osc = this.audioCtx.createOscillator();
-          const gain = this.audioCtx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(180, now);
-          osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
-          gain.gain.setValueAtTime(0.12, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-          osc.connect(gain); gain.connect(this.audioCtx.destination);
-          osc.start(now); osc.stop(now + 0.13);
-        } else if (type === 'hit') {
-          const osc = this.audioCtx.createOscillator();
-          const gain = this.audioCtx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(220, now);
-          osc.frequency.exponentialRampToValueAtTime(60, now + 0.4);
-          gain.gain.setValueAtTime(0.25, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-          osc.connect(gain); gain.connect(this.audioCtx.destination);
-          osc.start(now); osc.stop(now + 0.42);
-        } else if (type === 'victory') {
-          [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
-            const osc = this.audioCtx.createOscillator();
-            const gain = this.audioCtx.createGain();
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(freq, now + i * 0.12);
-            gain.gain.setValueAtTime(0.12, now + i * 0.12);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.25);
-            osc.connect(gain); gain.connect(this.audioCtx.destination);
-            osc.start(now + i * 0.12); osc.stop(now + i * 0.12 + 0.28);
-          });
-        }
-      }
-
       mount(container) {
         this.container = container;
         this.container.innerHTML = `
-          <div class="dp-game-container">
-            <div class="dp-header">
-              <div class="dp-score-box">
-                <span class="dp-coin-icon">🪙</span>
-                <span id="dp-score-txt">0</span> / ${this.targetScore}
-                <span class="dp-target-badge">목표 50</span>
-              </div>
-              <button class="dp-sound-btn" id="dp-sound-btn">🔊</button>
+          <div class="poop-container">
+            <div class="poop-header-board">
+              <span>점수: <span id="p-score">0</span></span>
+              <span>코인: <span id="p-coins">0</span>/50</span>
             </div>
-            <div class="dp-progress-wrap">
-              <div class="dp-progress-bar" id="dp-progress-bar"></div>
+            <canvas id="poop-canvas" width="250" height="350" class="poop-canvas"></canvas>
+            <div class="poop-controls">
+              <button class="p-btn" id="p-left">⬅️ 왼쪽</button>
+              <button class="p-btn" id="p-right">오른쪽 ➡️</button>
             </div>
-            <div class="dp-canvas-wrap">
-              <canvas id="dp-canvas" class="dp-canvas"></canvas>
-              <div class="dp-overlay" id="dp-overlay-ready">
-                <div class="dp-overlay-icon">💩</div>
-                <h2 class="dp-overlay-title">똥 피하기 게임</h2>
-                <p class="dp-overlay-desc">
-                  떨어지는 똥을 피하고 <strong>금색 코인 50개(🪙)</strong>를 모아 탈출하세요!<br>
-                  성공 시 졸라맨이 춤을 춥니다!
-                </p>
-                <button class="dp-btn-primary" id="dp-btn-start">게임 시작하기 ▶</button>
-              </div>
-              <div class="dp-overlay hidden" id="dp-overlay-gameover">
-                <div class="dp-overlay-icon">💥😵</div>
-                <h2 class="dp-overlay-title" style="color:#f87171;">GAME OVER</h2>
-                <p class="dp-overlay-desc">똥에 맞아 쓰러졌습니다...</p>
-                <div class="dp-result-score" id="dp-result-gameover">획득 코인: 0개</div>
-                <button class="dp-btn-primary" id="dp-btn-retry">다시 하기 🔄</button>
-              </div>
-              <div class="dp-overlay hidden" id="dp-overlay-victory">
-                <div class="dp-overlay-icon">🎉🕺</div>
-                <h2 class="dp-overlay-title" style="color:#4ade80;">MISSION CLEAR!</h2>
-                <p class="dp-overlay-desc">축하합니다! 코인 50개를 모아 탈출했습니다!</p>
-                <div class="dp-result-score" style="color:#4ade80; border-color:#4ade80;">50점 달성 승리! 👑</div>
-                <button class="dp-btn-primary dp-btn-victory" id="dp-btn-restart">다시 하기 🔄</button>
-              </div>
-            </div>
-            <div class="dp-controls">
-              <button class="dp-touch-btn" id="dp-btn-left">◀ 왼쪽</button>
-              <button class="dp-touch-btn" id="dp-btn-right">오른쪽 ▶</button>
-            </div>
-            <p class="dp-keyboard-hint">PC: 방향키(← →) 또는 [A], [D]</p>
           </div>
         `;
-
-        this.canvas = this.container.querySelector('#dp-canvas');
+        this.canvas = this.container.querySelector('#poop-canvas');
         this.ctx = this.canvas.getContext('2d');
-        const dpr = window.devicePixelRatio || 1;
-        this.canvas.width = this.vWidth * dpr;
-        this.canvas.height = this.vHeight * dpr;
-        this.ctx.scale(dpr, dpr);
-
-        this.readyOverlay = this.container.querySelector('#dp-overlay-ready');
-        this.gameOverOverlay = this.container.querySelector('#dp-overlay-gameover');
-        this.victoryOverlay = this.container.querySelector('#dp-overlay-victory');
-        this.scoreText = this.container.querySelector('#dp-score-txt');
-        this.progressBar = this.container.querySelector('#dp-progress-bar');
-        this.soundBtn = this.container.querySelector('#dp-sound-btn');
-
-        this.bindEvents();
-        this.setGameState('READY');
-        this.startLoop();
+        this.container.querySelector('#p-left').addEventListener('mousedown', () => this.move(-15));
+        this.container.querySelector('#p-right').addEventListener('mousedown', () => this.move(15));
+        this.container.querySelector('#p-left').addEventListener('touchstart', (e) => { e.preventDefault(); this.move(-15); });
+        this.container.querySelector('#p-right').addEventListener('touchstart', (e) => { e.preventDefault(); this.move(15); });
+        this.reset();
       }
-
-      unmount() {
-        this.stopLoop();
-        this.unbindEvents();
-        if (this.container) this.container.innerHTML = '';
+      unmount() { this.stop(); if (this.container) this.container.innerHTML = ''; }
+      reset() {
+        this.stop(); this.score = 0; this.coins = 0; this.playerX = 120; this.poops = []; this.coinItems = []; this.isGameOver = false;
+        this.interval = setInterval(() => this.loop(), 30);
       }
-
-      bindEvents() {
-        window.addEventListener('keydown', this.onKeyDown);
-        window.addEventListener('keyup', this.onKeyUp);
-
-        this.container.querySelector('#dp-btn-start').addEventListener('click', () => this.startGame());
-        this.container.querySelector('#dp-btn-retry').addEventListener('click', () => this.startGame());
-        this.container.querySelector('#dp-btn-restart').addEventListener('click', () => this.startGame());
-
-        this.soundBtn.addEventListener('click', () => {
-          this.isMuted = !this.isMuted;
-          this.soundBtn.textContent = this.isMuted ? '🔇' : '🔊';
-        });
-
-        const btnLeft = this.container.querySelector('#dp-btn-left');
-        const btnRight = this.container.querySelector('#dp-btn-right');
-        const handleL = (val) => (e) => { e.preventDefault(); this.keys.left = val; btnLeft.classList.toggle('active', val); };
-        const handleR = (val) => (e) => { e.preventDefault(); this.keys.right = val; btnRight.classList.toggle('active', val); };
-
-        btnLeft.addEventListener('mousedown', handleL(true));
-        btnLeft.addEventListener('mouseup', handleL(false));
-        btnLeft.addEventListener('mouseleave', handleL(false));
-        btnLeft.addEventListener('touchstart', handleL(true), { passive: false });
-        btnLeft.addEventListener('touchend', handleL(false), { passive: false });
-
-        btnRight.addEventListener('mousedown', handleR(true));
-        btnRight.addEventListener('mouseup', handleR(false));
-        btnRight.addEventListener('mouseleave', handleR(false));
-        btnRight.addEventListener('touchstart', handleR(true), { passive: false });
-        btnRight.addEventListener('touchend', handleR(false), { passive: false });
+      stop() { if (this.interval) clearInterval(this.interval); this.interval = null; }
+      move(dx) {
+        if (this.isGameOver) return;
+        this.playerX = Math.max(10, Math.min(230, this.playerX + dx));
       }
+      loop() {
+        if (Math.random() < 0.08) this.poops.push({ x: Math.random() * 230, y: 0, speed: Math.random() * 3 + 3 });
+        if (Math.random() < 0.03) this.coinItems.push({ x: Math.random() * 230, y: 0 });
 
-      unbindEvents() {
-        window.removeEventListener('keydown', this.onKeyDown);
-        window.removeEventListener('keyup', this.onKeyUp);
-      }
+        this.score++;
+        this.container.querySelector('#p-score').textContent = this.score;
+        this.container.querySelector('#p-coins').textContent = this.coins;
 
-      onKeyDown(e) {
-        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'a', 'A', 'd', 'D'].includes(e.key)) {
-          e.preventDefault();
+        this.poops.forEach(p => p.y += p.speed);
+        this.coinItems.forEach(c => c.y += 3);
+
+        for (let p of this.poops) {
+          if (p.y > 310 && Math.abs(p.x - this.playerX) < 18) {
+            this.isGameOver = true; this.stop(); alert(`💩 똥에 맞았습니다! 최종 점수: ${this.score}`); return;
+          }
         }
-        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') this.keys.left = true;
-        else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') this.keys.right = true;
-      }
-      onKeyUp(e) {
-        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'a', 'A', 'd', 'D'].includes(e.key)) {
-          e.preventDefault();
+        for (let i = this.coinItems.length - 1; i >= 0; i--) {
+          let c = this.coinItems[i];
+          if (c.y > 310 && Math.abs(c.x - this.playerX) < 20) {
+            this.coins++; this.coinItems.splice(i, 1);
+            if (this.coins >= 50) {
+              this.isGameOver = true; this.stop(); alert(`🎉 축하합니다! 황금 코인 50개를 모두 수집했습니다!`); return;
+            }
+          }
         }
-        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') this.keys.left = false;
-        else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') this.keys.right = false;
-      }
 
-      setGameState(state) {
-        this.gameState = state;
-        this.readyOverlay.classList.toggle('hidden', state !== 'READY');
-        this.gameOverOverlay.classList.toggle('hidden', state !== 'GAMEOVER');
-        this.victoryOverlay.classList.toggle('hidden', state !== 'VICTORY');
-      }
-
-      startGame() {
-        this.score = 0;
-        this.updateUI();
-        this.poops = []; this.coins = []; this.particles = []; this.floatingTexts = [];
-        this.poopSpawnTimer = 0; this.coinSpawnTimer = 0; this.lastTime = 0;
-        this.player.x = this.vWidth / 2; this.player.y = 430;
-        this.player.facing = 1; this.player.walkFrame = 0;
-        this.player.fallAngle = 0; this.player.danceTimer = 0; this.player.hasUmbrella = false;
-        this.setGameState('PLAYING');
-      }
-
-      updateUI() {
-        this.scoreText.textContent = this.score;
-        const p = Math.min(100, (this.score / this.targetScore) * 100);
-        this.progressBar.style.width = `${p}%`;
-      }
-
-      startLoop() { if (!this.animId) { this.lastTime = 0; this.animId = requestAnimationFrame(this.loop); } }
-      stopLoop() { if (this.animId) { cancelAnimationFrame(this.animId); this.animId = null; } this.lastTime = 0; }
-
-      loop(timestamp) {
-        if (!this.lastTime) this.lastTime = timestamp || performance.now();
-        const elapsed = timestamp ? (timestamp - this.lastTime) : 16.667;
-        this.lastTime = timestamp || performance.now();
-        const dt = Math.min(2.0, Math.max(0.1, elapsed / 16.667));
-
-        this.update(dt);
         this.draw();
-        this.animId = requestAnimationFrame(this.loop);
       }
-
-      update(dt = 1.0) {
-        for (let i = this.particles.length - 1; i >= 0; i--) {
-          const pt = this.particles[i];
-          pt.x += pt.vx * dt; pt.y += pt.vy * dt; pt.vy += (pt.gravity || 0) * dt;
-          if (pt.rot !== undefined) pt.rot += (pt.vRot || 0) * dt;
-          pt.life -= dt; pt.alpha = Math.max(0, pt.life / 30);
-          if (pt.life <= 0) this.particles.splice(i, 1);
-        }
-        for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
-          const ft = this.floatingTexts[i];
-          ft.y += ft.vy * dt; ft.life -= dt; ft.alpha = Math.max(0, ft.life / 30);
-          if (ft.life <= 0) this.floatingTexts.splice(i, 1);
-        }
-
-        if (this.gameState === 'READY') { this.player.walkFrame += 0.05 * dt; return; }
-        if (this.gameState === 'GAMEOVER') {
-          if (this.player.fallAngle < Math.PI / 2) this.player.fallAngle += 0.12 * dt;
-          return;
-        }
-        if (this.gameState === 'VICTORY') {
-          this.player.danceTimer += 0.1 * dt;
-          if (Math.random() < 0.35 * dt) this.createConfetti();
-          return;
-        }
-
-        this.player.isMoving = false;
-        if (this.keys.left) { this.player.x -= this.player.speed * dt; this.player.facing = -1; this.player.isMoving = true; }
-        if (this.keys.right) { this.player.x += this.player.speed * dt; this.player.facing = 1; this.player.isMoving = true; }
-        if (this.player.x < 18) this.player.x = 18;
-        if (this.player.x > this.vWidth - 18) this.player.x = this.vWidth - 18;
-        this.player.walkFrame = this.player.isMoving ? this.player.walkFrame + 0.25 * dt : 0;
-
-        this.poopSpawnTimer += dt;
-        if (this.poopSpawnTimer >= this.poopSpawnInterval) {
-          this.poopSpawnTimer = 0;
-          const speed = 2.5 + Math.random() * 1.9;
-          const radius = 13 + Math.random() * 5;
-          const x = radius + Math.random() * (this.vWidth - radius * 2);
-          this.poops.push({ x, y: -20, radius, speed, rotation: Math.random() * Math.PI, rotSpeed: (Math.random() - 0.5) * 0.04 });
-        }
-
-        for (let i = this.poops.length - 1; i >= 0; i--) {
-          const po = this.poops[i];
-          po.y += po.speed * dt; po.rotation += po.rotSpeed * dt;
-          if (po.y >= 424) {
-            for (let j = 0; j < 8; j++) {
-              const ang = -Math.PI * 0.1 - Math.random() * Math.PI * 0.8;
-              const sp = 1.5 + Math.random() * 3.5;
-              this.particles.push({ x: po.x, y: 428, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, gravity: 0.2, size: 3 + Math.random() * 4, color: '#854d0e', alpha: 1, life: 25 });
-            }
-            this.playSound('splash');
-            this.poops.splice(i, 1);
-            continue;
-          }
-          if (Math.hypot(po.x - this.player.x, po.y - 405) < po.radius + 16) {
-            if (this.player.hasUmbrella) {
-              this.player.hasUmbrella = false;
-              for (let j = 0; j < 8; j++) {
-                const ang = -Math.PI * 0.1 - Math.random() * Math.PI * 0.8;
-                const sp = 1.5 + Math.random() * 3.5;
-                this.particles.push({ x: po.x, y: po.y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, gravity: 0.2, size: 3 + Math.random() * 4, color: '#854d0e', alpha: 1, life: 25 });
-              }
-              for (let j = 0; j < 12; j++) {
-                const ang = Math.random() * Math.PI * 2;
-                const sp = 2 + Math.random() * 4;
-                this.particles.push({ x: this.player.x, y: 370, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, gravity: 0.05, size: 3 + Math.random() * 4, color: '#38bdf8', alpha: 1, life: 25 });
-              }
-              this.floatingTexts.push({ text: '☂️ 우산 방어!', x: this.player.x, y: 360, vy: -1.5, alpha: 1, color: '#38bdf8', life: 30 });
-              this.playSound('splash');
-              this.poops.splice(i, 1);
-              continue;
-            }
-
-            this.setGameState('GAMEOVER');
-            this.playSound('hit');
-            this.container.querySelector('#dp-result-gameover').textContent = `획득 코인: ${this.score} / ${this.targetScore}개`;
-            return;
-          }
-        }
-
-        this.coinSpawnTimer += dt;
-        if (this.coinSpawnTimer >= this.coinSpawnInterval) {
-          this.coinSpawnTimer = 0;
-          this.coins.push({ x: 12 + Math.random() * (this.vWidth - 24), y: -20, radius: 12, speed: 1.8 + Math.random() * 1.2, anim: Math.random() * Math.PI });
-        }
-
-        for (let i = this.coins.length - 1; i >= 0; i--) {
-          const c = this.coins[i];
-          c.y += c.speed * dt; c.anim += 0.08 * dt;
-          if (c.y >= 430) { this.coins.splice(i, 1); continue; }
-          if (Math.hypot(c.x - this.player.x, c.y - 405) < c.radius + 18) {
-            this.score++;
-            this.updateUI();
-            this.playSound('coin');
-            for (let j = 0; j < 10; j++) {
-              const ang = Math.random() * Math.PI * 2;
-              const sp = 1.5 + Math.random() * 3.5;
-              this.particles.push({ x: c.x, y: c.y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, gravity: 0.1, size: 3 + Math.random() * 3, color: '#fbbf24', alpha: 1, life: 25 });
-            }
-            this.floatingTexts.push({ text: '+1', x: c.x, y: c.y, vy: -1.5, alpha: 1, color: '#fbbf24', life: 30 });
-
-            if (this.score % 10 === 0 && this.score < this.targetScore) {
-              this.player.hasUmbrella = true;
-              this.playSound('victory');
-              this.floatingTexts.push({ text: '☂️ 우산 획득!', x: this.player.x, y: 360, vy: -1.5, alpha: 1, color: '#38bdf8', life: 30 });
-              for (let j = 0; j < 12; j++) {
-                const ang = Math.random() * Math.PI * 2;
-                const sp = 2 + Math.random() * 4;
-                this.particles.push({ x: this.player.x, y: 370, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, gravity: 0.05, size: 3 + Math.random() * 4, color: '#38bdf8', alpha: 1, life: 25 });
-              }
-            }
-
-            this.coins.splice(i, 1);
-            if (this.score >= this.targetScore) {
-              this.setGameState('VICTORY');
-              this.playSound('victory');
-              for (let k = 0; k < 35; k++) this.createConfetti();
-              return;
-            }
-          }
-        }
-      }
-
-      createConfetti() {
-        const colors = ['#f43f5e', '#3b82f6', '#10b981', '#fbbf24', '#a855f7', '#ec4899'];
-        this.particles.push({
-          x: Math.random() * this.vWidth, y: -10,
-          vx: (Math.random() - 0.5) * 3, vy: 2 + Math.random() * 3,
-          gravity: 0.05, size: 4 + Math.random() * 4,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          alpha: 1, life: 70, rot: Math.random() * Math.PI * 2, vRot: (Math.random() - 0.5) * 0.2
-        });
-      }
-
       draw() {
-        const ctx = this.ctx;
-        ctx.clearRect(0, 0, this.vWidth, this.vHeight);
-
-        // 배경
-        const bgGrad = ctx.createLinearGradient(0, 0, 0, this.vHeight);
-        bgGrad.addColorStop(0, '#090d16'); bgGrad.addColorStop(0.7, '#0f172a'); bgGrad.addColorStop(1, '#1e293b');
-        ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, this.vWidth, this.vHeight);
-
-        // 별빛
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
-        [[30, 40], [120, 80], [250, 45], [320, 110], [70, 160], [290, 190], [180, 70]].forEach(([sx, sy]) => ctx.fillRect(sx, sy, 2, 2));
-
-        // 바닥선
-        const groundY = 430;
-        ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, groundY); ctx.lineTo(this.vWidth, groundY); ctx.stroke();
-        ctx.fillStyle = '#0f172a'; ctx.fillRect(0, groundY, this.vWidth, this.vHeight - groundY);
-
-        // 똥
-        this.poops.forEach(p => {
-          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rotation);
-          const r = p.radius;
-          ctx.fillStyle = '#854d0e'; ctx.beginPath(); ctx.ellipse(0, r * 0.4, r * 1.1, r * 0.5, 0, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = '#92400e'; ctx.beginPath(); ctx.ellipse(0, -r * 0.1, r * 0.85, r * 0.45, 0, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = '#78350f'; ctx.beginPath(); ctx.moveTo(-r * 0.5, -r * 0.2); ctx.quadraticCurveTo(0, -r * 1.2, r * 0.4, -r * 1.1); ctx.quadraticCurveTo(r * 0.2, -r * 0.5, r * 0.5, -r * 0.2); ctx.fill();
-          ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(-r * 0.35, -r * 0.05, r * 0.22, 0, Math.PI * 2); ctx.arc(r * 0.35, -r * 0.05, r * 0.22, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(-r * 0.35 + 1, -r * 0.05, r * 0.12, 0, Math.PI * 2); ctx.arc(r * 0.35 + 1, -r * 0.05, r * 0.12, 0, Math.PI * 2); ctx.fill();
-          ctx.restore();
-        });
-
-        // 코인
-        this.coins.forEach(c => {
-          ctx.save(); ctx.translate(c.x, c.y);
-          const sx = Math.cos(c.anim); ctx.scale(Math.abs(sx) < 0.15 ? 0.15 : sx, 1);
-          ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(0, 0, c.radius, 0, Math.PI*2); ctx.fill();
-          ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.arc(0, 0, c.radius * 0.82, 0, Math.PI*2); ctx.fill();
-          ctx.fillStyle = '#b45309'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('★', 0, 1);
-          ctx.restore();
-        });
-
-        // 파티클
-        this.particles.forEach(pt => {
-          ctx.save(); ctx.globalAlpha = pt.alpha; ctx.fillStyle = pt.color;
-          if (pt.rot !== undefined) {
-            ctx.translate(pt.x, pt.y); ctx.rotate(pt.rot); ctx.fillRect(-pt.size/2, -pt.size/2, pt.size, pt.size);
-          } else {
-            ctx.beginPath(); ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI*2); ctx.fill();
-          }
-          ctx.restore();
-        });
-
-        // 플로팅 텍스트
-        this.floatingTexts.forEach(ft => {
-          ctx.save(); ctx.globalAlpha = ft.alpha; ctx.fillStyle = ft.color;
-          ctx.font = 'bold 16px "JetBrains Mono", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(ft.text, ft.x, ft.y);
-          ctx.restore();
-        });
-
-        // 졸라맨
-        ctx.save();
-        ctx.translate(this.player.x, this.player.y);
-        if (this.gameState === 'GAMEOVER') {
-          ctx.rotate(this.player.fallAngle);
-          ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-          ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.arc(0, -48, 9, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-          ctx.font = '16px serif'; ctx.textAlign = 'center'; ctx.fillText('💩', 0, -58);
-          ctx.strokeStyle = '#94a3b8'; ctx.beginPath(); ctx.moveTo(0, -39); ctx.lineTo(0, -20); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(0, -20); ctx.lineTo(-8, -5); ctx.lineTo(-12, 0); ctx.moveTo(0, -20); ctx.lineTo(8, -5); ctx.lineTo(14, 0);
-          ctx.moveTo(0, -36); ctx.lineTo(-14, -28); ctx.moveTo(0, -36); ctx.lineTo(14, -28); ctx.stroke();
-        } else if (this.gameState === 'VICTORY') {
-          const t = this.player.danceTimer;
-          const bounce = Math.abs(Math.sin(t * 3)) * 6;
-          const sw = Math.cos(t * 3) * 6;
-          ctx.strokeStyle = '#4ade80'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-          ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.arc(sw*0.5, -52 - bounce, 9, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-          ctx.font = '16px serif'; ctx.textAlign = 'center'; ctx.fillText('👑', sw*0.5, -64 - bounce);
-          ctx.strokeStyle = '#f8fafc'; ctx.beginPath(); ctx.moveTo(sw*0.5, -43 - bounce); ctx.lineTo(0, -22 - bounce); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(sw*0.5, -40 - bounce); ctx.lineTo(-16, -42 - bounce + Math.sin(t*3)*14); ctx.lineTo(-24, -50 - bounce + Math.sin(t*3)*14);
-          ctx.moveTo(sw*0.5, -40 - bounce); ctx.lineTo(16, -42 - bounce - Math.sin(t*3)*14); ctx.lineTo(24, -50 - bounce - Math.sin(t*3)*14); ctx.stroke();
-          const dStep = Math.sin(t * 3);
-          ctx.beginPath(); ctx.moveTo(0, -22 - bounce); ctx.lineTo(-8 + dStep*8, -10); ctx.lineTo(-8 + dStep*8, 0);
-          ctx.moveTo(0, -22 - bounce); ctx.lineTo(8 - dStep*8, -10); ctx.lineTo(8 - dStep*8, 0); ctx.stroke();
-        } else {
-          ctx.scale(this.player.facing, 1);
-          ctx.strokeStyle = '#f8fafc'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-          const bounce = this.player.isMoving ? Math.abs(Math.sin(this.player.walkFrame)) * 4 : Math.sin(this.player.walkFrame) * 2;
-          ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.arc(0, -52 - bounce, 9, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-          ctx.fillStyle = '#38bdf8'; ctx.beginPath(); ctx.arc(3, -53 - bounce, 1.8, 0, Math.PI*2); ctx.fill();
-          ctx.beginPath(); ctx.moveTo(0, -43 - bounce); ctx.lineTo(0, -22 - bounce); ctx.stroke();
-          const legSw = this.player.isMoving ? Math.sin(this.player.walkFrame) * 0.8 : 0;
-          ctx.beginPath(); ctx.moveTo(0, -22 - bounce); ctx.lineTo(Math.sin(legSw)*10 + 4, -10 - bounce); ctx.lineTo(Math.sin(legSw)*16 + 6, 0);
-          ctx.moveTo(0, -22 - bounce); ctx.lineTo(-Math.sin(legSw)*10 - 4, -10 - bounce); ctx.lineTo(-Math.sin(legSw)*16 - 6, 0); ctx.stroke();
-          const armSw = this.player.isMoving ? -Math.sin(this.player.walkFrame) * 0.9 : 0;
-          ctx.beginPath(); ctx.moveTo(0, -39 - bounce); ctx.lineTo(Math.sin(armSw)*14 + 6, -27 - bounce); ctx.moveTo(0, -39 - bounce); ctx.lineTo(-Math.sin(armSw)*14 - 6, -27 - bounce); ctx.stroke();
-
-          if (this.player.hasUmbrella) {
-            ctx.save();
-            const umbY = -66 - bounce;
-            ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 14;
-            const umbGrad = ctx.createLinearGradient(0, umbY - 22, 0, umbY);
-            umbGrad.addColorStop(0, '#38bdf8'); umbGrad.addColorStop(1, '#0284c7');
-            ctx.fillStyle = umbGrad;
-            ctx.beginPath(); ctx.arc(0, umbY, 26, Math.PI * 1.05, Math.PI * 1.95); ctx.closePath(); ctx.fill();
-            ctx.fillStyle = '#0f172a'; ctx.beginPath();
-            for (let i = 0; i < 4; i++) ctx.arc(-26 + i * 13 + 6.5, umbY, 6.5, Math.PI, 0, true);
-            ctx.fill();
-            ctx.strokeStyle = '#f8fafc'; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.arc(0, umbY, 26, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
-            ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, umbY); ctx.lineTo(0, -48 - bounce); ctx.stroke();
-            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(0, umbY - 26, 3, 0, Math.PI * 2); ctx.fill();
-            ctx.restore();
-          }
-        }
-        ctx.restore();
->>>>>>> 04fd86a (fix(dodge-poop): delta time physics fix, umbrella shield item logic and poop fall speed update)
+        this.ctx.fillStyle = '#1e293b'; this.ctx.fillRect(0, 0, 250, 350);
+        this.ctx.fillStyle = '#38bdf8'; this.ctx.beginPath();
+        this.ctx.arc(this.playerX, 325, 12, 0, Math.PI * 2); this.ctx.fill();
+        this.ctx.fillStyle = '#78350f';
+        this.poops.forEach(p => { this.ctx.beginPath(); this.ctx.arc(p.x, p.y, 8, 0, Math.PI * 2); this.ctx.fill(); });
+        this.ctx.fillStyle = '#f59e0b';
+        this.coinItems.forEach(c => { this.ctx.beginPath(); this.ctx.arc(c.x, c.y, 6, 0, Math.PI * 2); this.ctx.fill(); });
       }
     }
 
@@ -996,27 +587,38 @@
         if (this.container) this.container.innerHTML = '';
       }
       onTouchStart(e) {
-        if (this.isGameOver) return; e.preventDefault();
+        if (this.isGameOver) return;
+        if (e.cancelable) e.preventDefault();
         const t = e.touches[0];
         this.touchSX = t.clientX; this.touchSY = t.clientY; this.lastDragX = t.clientX;
         this.touchSTime = Date.now(); this.isDragging = true;
       }
       onTouchMove(e) {
-        if (this.isGameOver || !this.isDragging) return; e.preventDefault();
+        if (this.isGameOver || !this.isDragging) return;
+        if (e.cancelable) e.preventDefault();
         const t = e.touches[0];
         const dx = t.clientX - this.lastDragX;
-        if (dx > 18) { this.moveRight(); this.lastDragX = t.clientX; }
-        else if (dx < -18) { this.moveLeft(); this.lastDragX = t.clientX; }
+        const dragThreshold = 10;
+        if (dx > dragThreshold) {
+          const steps = Math.floor(dx / dragThreshold);
+          for (let i = 0; i < steps; i++) this.moveRight();
+          this.lastDragX = t.clientX;
+        } else if (dx < -dragThreshold) {
+          const steps = Math.floor(Math.abs(dx) / dragThreshold);
+          for (let i = 0; i < steps; i++) this.moveLeft();
+          this.lastDragX = t.clientX;
+        }
       }
       onTouchEnd(e) {
-        if (this.isGameOver) return; e.preventDefault();
+        if (this.isGameOver) return;
+        if (e.cancelable) e.preventDefault();
         this.isDragging = false;
         const t = e.changedTouches[0];
         const totalDX = t.clientX - this.touchSX, totalDY = t.clientY - this.touchSY;
         const dur = Date.now() - this.touchSTime;
-        if (totalDY > 35 && Math.abs(totalDY) > Math.abs(totalDX)) {
+        if (totalDY > 30 && Math.abs(totalDY) > Math.abs(totalDX)) {
           this.hardDrop();
-        } else if (Math.abs(totalDX) < 12 && Math.abs(totalDY) < 12 && dur < 250) {
+        } else if (Math.abs(totalDX) < 8 && Math.abs(totalDY) < 8 && dur < 250) {
           this.rotate();
         }
       }

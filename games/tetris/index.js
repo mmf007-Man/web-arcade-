@@ -1,12 +1,12 @@
 export const meta = {
   id: 'tetris',
   title: '테트리스 (Tetris)',
-  description: '블록을 회전시키고 가득 채워 줄을 지워보세요! 실시간 좌우 드래그 이동 & 터치 조작 지원',
+  description: '블록을 회전시키고 가득 채워 줄을 지워보세요! 터치 스크롤 차단 & 민감한 고성능 드래그 조작 지원',
   author: 'Arcade Contributor',
   category: '퍼즐 / 아케이드',
   icon: '🧱',
   thumbnailColor: 'linear-gradient(135deg, #a855f7 0%, #581c87 100%)',
-  version: '1.3.0'
+  version: '1.4.0'
 };
 
 const COLS = 10;
@@ -50,7 +50,7 @@ export class Game {
     this.gameInterval = null;
     this.isGameOver = false;
 
-    // 터치 및 실시간 드래그 트래킹 변수
+    // 터치 민감 드래그 상태
     this.touchStartX = 0;
     this.touchStartY = 0;
     this.lastDragX = 0;
@@ -110,11 +110,11 @@ export class Game {
         <canvas id="tetris-canvas" width="180" height="360" class="tetris-canvas"></canvas>
 
         <div class="tetris-gesture-guide">
-          <p>👇 <b>터치 조작 안내</b></p>
+          <p>👇 <b>스마트폰 터치 조작 안내</b></p>
           <ul>
-            <li>👈👉 <b>좌우 실시간 드래그</b>: 블록 연속 이동</li>
-            <li>👆 <b>짧은 탭</b>: 블록 회전</li>
-            <li>👇 <b>아래 스와이프</b>: 하드 드롭</li>
+            <li>👈👉 <b>손가락 좌우 드래그</b>: 블록 실시간 연속 이동</li>
+            <li>👆 <b>가벼운 탭</b>: 블록 회전</li>
+            <li>👇 <b>아래로 쓸어내리기</b>: 하드 드롭</li>
           </ul>
         </div>
 
@@ -129,7 +129,7 @@ export class Game {
 
     this.container.querySelector('#t-btn-restart').addEventListener('click', () => this.resetGame());
 
-    // 실시간 드래그 및 터치 이벤트 등록
+    // 스마트폰 스크롤 차단 및 터치 드래그 이벤트 (non-passive)
     this.canvas.addEventListener('touchstart', this.handleTouchStart, { passive: false });
     this.canvas.addEventListener('touchmove', this.handleTouchMove, { passive: false });
     this.canvas.addEventListener('touchend', this.handleTouchEnd, { passive: false });
@@ -139,7 +139,7 @@ export class Game {
 
   handleTouchStart(e) {
     if (this.isGameOver) return;
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();
     const touch = e.touches[0];
     this.touchStartX = touch.clientX;
     this.touchStartY = touch.clientY;
@@ -150,23 +150,29 @@ export class Game {
 
   handleTouchMove(e) {
     if (this.isGameOver || !this.isDragging) return;
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault(); // 웹 브라우저 스크롤 완전 차단
     const touch = e.touches[0];
     const deltaX = touch.clientX - this.lastDragX;
-    const dragThreshold = 18; // 블록 1칸 당 이동 임계값 (18px)
+    const dragThreshold = 10; // 10px로 민감도 향상
 
     if (deltaX > dragThreshold) {
-      this.moveRight();
+      const steps = Math.floor(deltaX / dragThreshold);
+      for (let i = 0; i < steps; i++) {
+        this.moveRight();
+      }
       this.lastDragX = touch.clientX;
     } else if (deltaX < -dragThreshold) {
-      this.moveLeft();
+      const steps = Math.floor(Math.abs(deltaX) / dragThreshold);
+      for (let i = 0; i < steps; i++) {
+        this.moveLeft();
+      }
       this.lastDragX = touch.clientX;
     }
   }
 
   handleTouchEnd(e) {
     if (this.isGameOver) return;
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();
     this.isDragging = false;
     const touch = e.changedTouches[0];
     const totalDeltaX = touch.clientX - this.touchStartX;
@@ -174,10 +180,10 @@ export class Game {
     const duration = Date.now() - this.touchStartTime;
 
     // 아래로 빠른 스와이프 -> 하드 드롭
-    if (totalDeltaY > 35 && Math.abs(totalDeltaY) > Math.abs(totalDeltaX)) {
+    if (totalDeltaY > 30 && Math.abs(totalDeltaY) > Math.abs(totalDeltaX)) {
       this.hardDrop();
-    } else if (Math.abs(totalDeltaX) < 12 && Math.abs(totalDeltaY) < 12 && duration < 250) {
-      // 제자리 짧은 탭 -> 회전
+    } else if (Math.abs(totalDeltaX) < 8 && Math.abs(totalDeltaY) < 8 && duration < 250) {
+      // 제자리 탭 -> 회전
       this.rotate();
     }
   }
