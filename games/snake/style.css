@@ -1,42 +1,196 @@
-.snake-container {
+.snake-app {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  color: #f8fafc;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  user-select: none;
 }
 
-.snake-score-board {
+/* 상단 스코어 보드 */
+.snake-header-bar {
   display: flex;
-  gap: 20px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-.snake-canvas {
-  background-color: #0f172a;
-  border: 3px solid #38bdf8;
-  border-radius: 8px;
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
-}
-
-.snake-controls {
-  display: flex;
+  justify-content: space-between;
+  width: 100%;
   gap: 12px;
 }
 
-.snake-btn {
-  background: #38bdf8;
-  color: #0f172a;
-  border: none;
-  padding: 8px 16px;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
+.snake-stat-box {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.snake-btn:hover {
-  background: #0284c7;
+.snake-stat-box.high {
+  border-color: rgba(234, 179, 8, 0.3);
+}
+
+.snake-stat-box .stat-label {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.snake-stat-box .stat-value {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #4ade80;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.snake-stat-box.high .stat-value {
+  color: #eab308;
+}
+
+/* 캔버스 래퍼 */
+.snake-canvas-wrapper {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(34, 197, 94, 0.2);
+  border: 2px solid rgba(34, 197, 94, 0.4);
+}
+
+.snake-canvas {
+  display: block;
+  width: 300px;
+  height: 300px;
+  touch-action: none;
+}
+
+/* 게임 오버 오버레이 */
+.snake-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 15, 25, 0.88);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 10;
+}
+
+.snake-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.overlay-card {
+  text-align: center;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.overlay-icon {
+  font-size: 2.5rem;
+}
+
+.overlay-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #ef4444;
+  letter-spacing: 0.05em;
+}
+
+.overlay-score {
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  margin-bottom: 8px;
+}
+
+.snake-action-btn {
+  background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
   color: #ffffff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);
+  transition: all 0.2s ease;
+}
+
+.snake-action-btn:active {
+  transform: scale(0.96);
+}
+
+/* 🕹️ 모바일 가상 D-Pad 컨트롤러 */
+.snake-dpad-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.dpad-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.dpad-row.middle {
+  gap: 12px;
+}
+
+.dpad-center {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.1rem;
+  opacity: 0.4;
+}
+
+.dpad-btn {
+  width: 54px;
+  height: 50px;
+  background: rgba(30, 41, 59, 0.85);
+  border: 1.5px solid rgba(56, 189, 248, 0.3);
+  border-radius: 14px;
+  color: #f8fafc;
+  font-size: 1.2rem;
+  font-weight: 900;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.15s ease;
+}
+
+.dpad-btn:active {
+  background: #22c55e;
+  color: #0f172a;
+  border-color: #22c55e;
+  transform: scale(0.92);
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+}
+
+/* 하단 안내 문구 */
+.snake-guide-text {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  text-align: center;
 }
