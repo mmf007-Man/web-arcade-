@@ -194,6 +194,30 @@
     .snake-score-board { display: flex; gap: 16px; font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: bold; }
     .snake-canvas { background-color: #0f172a; border: 2px solid #38bdf8; border-radius: 8px; max-width: 100%; height: auto; }
     .snake-btn { background: #38bdf8; color: #0f172a; border: none; padding: 6px 14px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+
+    /* 똥 피하기 모바일 9:16 최적화 스타일 */
+    .dp-game-container { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 380px; margin: 0 auto; position: relative; user-select: none; -webkit-user-select: none; font-family: 'Pretendard', sans-serif; color: #f8fafc; }
+    .dp-header { width: 100%; display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 14px; border-radius: 14px; margin-bottom: 8px; backdrop-filter: blur(8px); }
+    .dp-score-box { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 0.95rem; }
+    .dp-coin-icon { font-size: 1.1rem; }
+    .dp-target-badge { font-size: 0.72rem; color: #94a3b8; background: rgba(255, 255, 255, 0.08); padding: 2px 6px; border-radius: 6px; }
+    .dp-sound-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.15); color: #f8fafc; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+    .dp-progress-wrap { width: 100%; height: 5px; background: rgba(255, 255, 255, 0.1); border-radius: 999px; overflow: hidden; margin-bottom: 8px; }
+    .dp-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #f59e0b, #fbbf24); border-radius: 999px; transition: width 0.3s ease; }
+    .dp-canvas-wrap { position: relative; width: 100%; aspect-ratio: 3 / 4; max-height: 400px; background: #0f172a; border: 2px solid rgba(56, 189, 248, 0.3); border-radius: 16px; overflow: hidden; }
+    .dp-canvas { width: 100%; height: 100%; display: block; }
+    .dp-overlay { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(6px); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 18px; text-align: center; z-index: 10; transition: opacity 0.2s ease; }
+    .dp-overlay.hidden { opacity: 0; pointer-events: none; }
+    .dp-overlay-icon { font-size: 3rem; margin-bottom: 6px; }
+    .dp-overlay-title { font-size: 1.3rem; font-weight: 900; margin-bottom: 6px; }
+    .dp-overlay-desc { font-size: 0.8rem; color: #94a3b8; line-height: 1.4; margin-bottom: 14px; }
+    .dp-result-score { font-size: 1rem; font-weight: 700; color: #fbbf24; margin-bottom: 14px; background: rgba(251, 191, 36, 0.1); padding: 5px 12px; border-radius: 8px; border: 1px solid rgba(251, 191, 36, 0.3); }
+    .dp-btn-primary { background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: #ffffff; border: none; padding: 10px 24px; font-size: 0.9rem; font-weight: 800; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4); }
+    .dp-btn-victory { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .dp-controls { width: 100%; display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; }
+    .dp-touch-btn { flex: 1; background: #1e293b; border: 2px solid #334155; color: #f8fafc; padding: 12px 0; border-radius: 12px; font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: pointer; touch-action: manipulation; }
+    .dp-touch-btn:active, .dp-touch-btn.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; transform: scale(0.96); }
+    .dp-keyboard-hint { font-size: 0.72rem; color: #64748b; margin-top: 6px; text-align: center; }
   </style>
 </head>
 <body>
@@ -426,6 +450,434 @@
       }
     }
 
+    // --- 3. 똥 피하기 게임 클래스 ---
+    class DodgePoopGamePlugin {
+      constructor() {
+        this.container = null; this.canvas = null; this.ctx = null;
+        this.vWidth = 360; this.vHeight = 480;
+        this.gameState = 'READY'; this.targetScore = 50; this.score = 0;
+        this.player = { x: 180, y: 430, vx: 0, speed: 4.8, facing: 1, walkFrame: 0, isMoving: false, fallAngle: 0, danceTimer: 0 };
+        this.poops = []; this.coins = []; this.particles = []; this.floatingTexts = [];
+        this.poopSpawnTimer = 0; this.poopSpawnInterval = 32;
+        this.coinSpawnTimer = 0; this.coinSpawnInterval = 130;
+        this.keys = { left: false, right: false };
+        this.isMuted = false; this.audioCtx = null;
+        this.onKeyDown = this.onKeyDown.bind(this);
+        this.onKeyUp = this.onKeyUp.bind(this);
+        this.loop = this.loop.bind(this);
+        this.animId = null;
+      }
+
+      initAudio() {
+        if (!this.audioCtx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.audioCtx = new AudioCtx();
+        }
+        if (this.audioCtx && this.audioCtx.state === 'suspended') this.audioCtx.resume();
+      }
+
+      playSound(type) {
+        if (this.isMuted) return;
+        this.initAudio();
+        if (!this.audioCtx) return;
+        const now = this.audioCtx.currentTime;
+        if (type === 'coin') {
+          const osc = this.audioCtx.createOscillator();
+          const gain = this.audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(987.77, now);
+          osc.frequency.setValueAtTime(1318.51, now + 0.08);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+          osc.connect(gain); gain.connect(this.audioCtx.destination);
+          osc.start(now); osc.stop(now + 0.3);
+        } else if (type === 'splash') {
+          const osc = this.audioCtx.createOscillator();
+          const gain = this.audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(180, now);
+          osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+          osc.connect(gain); gain.connect(this.audioCtx.destination);
+          osc.start(now); osc.stop(now + 0.13);
+        } else if (type === 'hit') {
+          const osc = this.audioCtx.createOscillator();
+          const gain = this.audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.exponentialRampToValueAtTime(60, now + 0.4);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          osc.connect(gain); gain.connect(this.audioCtx.destination);
+          osc.start(now); osc.stop(now + 0.42);
+        } else if (type === 'victory') {
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+            const osc = this.audioCtx.createOscillator();
+            const gain = this.audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(freq, now + i * 0.12);
+            gain.gain.setValueAtTime(0.12, now + i * 0.12);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.25);
+            osc.connect(gain); gain.connect(this.audioCtx.destination);
+            osc.start(now + i * 0.12); osc.stop(now + i * 0.12 + 0.28);
+          });
+        }
+      }
+
+      mount(container) {
+        this.container = container;
+        this.container.innerHTML = `
+          <div class="dp-game-container">
+            <div class="dp-header">
+              <div class="dp-score-box">
+                <span class="dp-coin-icon">🪙</span>
+                <span id="dp-score-txt">0</span> / ${this.targetScore}
+                <span class="dp-target-badge">목표 50</span>
+              </div>
+              <button class="dp-sound-btn" id="dp-sound-btn">🔊</button>
+            </div>
+            <div class="dp-progress-wrap">
+              <div class="dp-progress-bar" id="dp-progress-bar"></div>
+            </div>
+            <div class="dp-canvas-wrap">
+              <canvas id="dp-canvas" class="dp-canvas"></canvas>
+              <div class="dp-overlay" id="dp-overlay-ready">
+                <div class="dp-overlay-icon">💩</div>
+                <h2 class="dp-overlay-title">똥 피하기 게임</h2>
+                <p class="dp-overlay-desc">
+                  떨어지는 똥을 피하고 <strong>금색 코인 50개(🪙)</strong>를 모아 탈출하세요!<br>
+                  성공 시 졸라맨이 춤을 춥니다!
+                </p>
+                <button class="dp-btn-primary" id="dp-btn-start">게임 시작하기 ▶</button>
+              </div>
+              <div class="dp-overlay hidden" id="dp-overlay-gameover">
+                <div class="dp-overlay-icon">💥😵</div>
+                <h2 class="dp-overlay-title" style="color:#f87171;">GAME OVER</h2>
+                <p class="dp-overlay-desc">똥에 맞아 쓰러졌습니다...</p>
+                <div class="dp-result-score" id="dp-result-gameover">획득 코인: 0개</div>
+                <button class="dp-btn-primary" id="dp-btn-retry">다시 하기 🔄</button>
+              </div>
+              <div class="dp-overlay hidden" id="dp-overlay-victory">
+                <div class="dp-overlay-icon">🎉🕺</div>
+                <h2 class="dp-overlay-title" style="color:#4ade80;">MISSION CLEAR!</h2>
+                <p class="dp-overlay-desc">축하합니다! 코인 50개를 모아 탈출했습니다!</p>
+                <div class="dp-result-score" style="color:#4ade80; border-color:#4ade80;">50점 달성 승리! 👑</div>
+                <button class="dp-btn-primary dp-btn-victory" id="dp-btn-restart">다시 하기 🔄</button>
+              </div>
+            </div>
+            <div class="dp-controls">
+              <button class="dp-touch-btn" id="dp-btn-left">◀ 왼쪽</button>
+              <button class="dp-touch-btn" id="dp-btn-right">오른쪽 ▶</button>
+            </div>
+            <p class="dp-keyboard-hint">PC: 방향키(← →) 또는 [A], [D]</p>
+          </div>
+        `;
+
+        this.canvas = this.container.querySelector('#dp-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        this.canvas.width = this.vWidth * dpr;
+        this.canvas.height = this.vHeight * dpr;
+        this.ctx.scale(dpr, dpr);
+
+        this.readyOverlay = this.container.querySelector('#dp-overlay-ready');
+        this.gameOverOverlay = this.container.querySelector('#dp-overlay-gameover');
+        this.victoryOverlay = this.container.querySelector('#dp-overlay-victory');
+        this.scoreText = this.container.querySelector('#dp-score-txt');
+        this.progressBar = this.container.querySelector('#dp-progress-bar');
+        this.soundBtn = this.container.querySelector('#dp-sound-btn');
+
+        this.bindEvents();
+        this.setGameState('READY');
+        this.startLoop();
+      }
+
+      unmount() {
+        this.stopLoop();
+        this.unbindEvents();
+        if (this.container) this.container.innerHTML = '';
+      }
+
+      bindEvents() {
+        window.addEventListener('keydown', this.onKeyDown);
+        window.addEventListener('keyup', this.onKeyUp);
+
+        this.container.querySelector('#dp-btn-start').addEventListener('click', () => this.startGame());
+        this.container.querySelector('#dp-btn-retry').addEventListener('click', () => this.startGame());
+        this.container.querySelector('#dp-btn-restart').addEventListener('click', () => this.startGame());
+
+        this.soundBtn.addEventListener('click', () => {
+          this.isMuted = !this.isMuted;
+          this.soundBtn.textContent = this.isMuted ? '🔇' : '🔊';
+        });
+
+        const btnLeft = this.container.querySelector('#dp-btn-left');
+        const btnRight = this.container.querySelector('#dp-btn-right');
+        const handleL = (val) => (e) => { e.preventDefault(); this.keys.left = val; btnLeft.classList.toggle('active', val); };
+        const handleR = (val) => (e) => { e.preventDefault(); this.keys.right = val; btnRight.classList.toggle('active', val); };
+
+        btnLeft.addEventListener('mousedown', handleL(true));
+        btnLeft.addEventListener('mouseup', handleL(false));
+        btnLeft.addEventListener('mouseleave', handleL(false));
+        btnLeft.addEventListener('touchstart', handleL(true), { passive: false });
+        btnLeft.addEventListener('touchend', handleL(false), { passive: false });
+
+        btnRight.addEventListener('mousedown', handleR(true));
+        btnRight.addEventListener('mouseup', handleR(false));
+        btnRight.addEventListener('mouseleave', handleR(false));
+        btnRight.addEventListener('touchstart', handleR(true), { passive: false });
+        btnRight.addEventListener('touchend', handleR(false), { passive: false });
+      }
+
+      unbindEvents() {
+        window.removeEventListener('keydown', this.onKeyDown);
+        window.removeEventListener('keyup', this.onKeyUp);
+      }
+
+      onKeyDown(e) {
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') this.keys.left = true;
+        else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') this.keys.right = true;
+      }
+      onKeyUp(e) {
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') this.keys.left = false;
+        else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') this.keys.right = false;
+      }
+
+      setGameState(state) {
+        this.gameState = state;
+        this.readyOverlay.classList.toggle('hidden', state !== 'READY');
+        this.gameOverOverlay.classList.toggle('hidden', state !== 'GAMEOVER');
+        this.victoryOverlay.classList.toggle('hidden', state !== 'VICTORY');
+      }
+
+      startGame() {
+        this.score = 0;
+        this.updateUI();
+        this.poops = []; this.coins = []; this.particles = []; this.floatingTexts = [];
+        this.poopSpawnTimer = 0; this.coinSpawnTimer = 0;
+        this.player.x = this.vWidth / 2; this.player.y = 430;
+        this.player.facing = 1; this.player.walkFrame = 0;
+        this.player.fallAngle = 0; this.player.danceTimer = 0;
+        this.setGameState('PLAYING');
+      }
+
+      updateUI() {
+        this.scoreText.textContent = this.score;
+        const p = Math.min(100, (this.score / this.targetScore) * 100);
+        this.progressBar.style.width = `${p}%`;
+      }
+
+      startLoop() { if (!this.animId) this.animId = requestAnimationFrame(this.loop); }
+      stopLoop() { if (this.animId) { cancelAnimationFrame(this.animId); this.animId = null; } }
+
+      loop() {
+        this.update();
+        this.draw();
+        this.animId = requestAnimationFrame(this.loop);
+      }
+
+      update() {
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const pt = this.particles[i];
+          pt.x += pt.vx; pt.y += pt.vy; pt.vy += pt.gravity || 0;
+          if (pt.rot !== undefined) pt.rot += pt.vRot || 0;
+          pt.life--; pt.alpha = Math.max(0, pt.life / 30);
+          if (pt.life <= 0) this.particles.splice(i, 1);
+        }
+        for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+          const ft = this.floatingTexts[i];
+          ft.y += ft.vy; ft.life--; ft.alpha = Math.max(0, ft.life / 30);
+          if (ft.life <= 0) this.floatingTexts.splice(i, 1);
+        }
+
+        if (this.gameState === 'READY') { this.player.walkFrame += 0.05; return; }
+        if (this.gameState === 'GAMEOVER') {
+          if (this.player.fallAngle < Math.PI / 2) this.player.fallAngle += 0.12;
+          return;
+        }
+        if (this.gameState === 'VICTORY') {
+          this.player.danceTimer += 0.1;
+          if (Math.random() < 0.35) this.createConfetti();
+          return;
+        }
+
+        this.player.isMoving = false;
+        if (this.keys.left) { this.player.x -= this.player.speed; this.player.facing = -1; this.player.isMoving = true; }
+        if (this.keys.right) { this.player.x += this.player.speed; this.player.facing = 1; this.player.isMoving = true; }
+        if (this.player.x < 18) this.player.x = 18;
+        if (this.player.x > this.vWidth - 18) this.player.x = this.vWidth - 18;
+        this.player.walkFrame = this.player.isMoving ? this.player.walkFrame + 0.25 : 0;
+
+        this.poopSpawnTimer++;
+        if (this.poopSpawnTimer >= this.poopSpawnInterval) {
+          this.poopSpawnTimer = 0;
+          const speed = 2.2 + Math.random() * 1.8;
+          const radius = 13 + Math.random() * 5;
+          const x = radius + Math.random() * (this.vWidth - radius * 2);
+          this.poops.push({ x, y: -20, radius, speed, rotation: Math.random() * Math.PI, rotSpeed: (Math.random() - 0.5) * 0.04 });
+        }
+
+        for (let i = this.poops.length - 1; i >= 0; i--) {
+          const po = this.poops[i];
+          po.y += po.speed; po.rotation += po.rotSpeed;
+          if (po.y >= 424) {
+            for (let j = 0; j < 8; j++) {
+              const ang = -Math.PI * 0.1 - Math.random() * Math.PI * 0.8;
+              const sp = 1.5 + Math.random() * 3.5;
+              this.particles.push({ x: po.x, y: 428, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, gravity: 0.2, size: 3 + Math.random() * 4, color: '#854d0e', alpha: 1, life: 25 });
+            }
+            this.playSound('splash');
+            this.poops.splice(i, 1);
+            continue;
+          }
+          if (Math.hypot(po.x - this.player.x, po.y - 405) < po.radius + 16) {
+            this.setGameState('GAMEOVER');
+            this.playSound('hit');
+            this.container.querySelector('#dp-result-gameover').textContent = `획득 코인: ${this.score} / ${this.targetScore}개`;
+            return;
+          }
+        }
+
+        this.coinSpawnTimer++;
+        if (this.coinSpawnTimer >= this.coinSpawnInterval) {
+          this.coinSpawnTimer = 0;
+          this.coins.push({ x: 12 + Math.random() * (this.vWidth - 24), y: -20, radius: 12, speed: 1.8 + Math.random() * 1.2, anim: Math.random() * Math.PI });
+        }
+
+        for (let i = this.coins.length - 1; i >= 0; i--) {
+          const c = this.coins[i];
+          c.y += c.speed; c.anim += 0.08;
+          if (c.y >= 430) { this.coins.splice(i, 1); continue; }
+          if (Math.hypot(c.x - this.player.x, c.y - 405) < c.radius + 18) {
+            this.score++;
+            this.updateUI();
+            this.playSound('coin');
+            for (let j = 0; j < 10; j++) {
+              const ang = Math.random() * Math.PI * 2;
+              const sp = 1.5 + Math.random() * 3.5;
+              this.particles.push({ x: c.x, y: c.y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, gravity: 0.1, size: 3 + Math.random() * 3, color: '#fbbf24', alpha: 1, life: 25 });
+            }
+            this.floatingTexts.push({ text: '+1', x: c.x, y: c.y, vy: -1.5, alpha: 1, color: '#fbbf24', life: 30 });
+            this.coins.splice(i, 1);
+            if (this.score >= this.targetScore) {
+              this.setGameState('VICTORY');
+              this.playSound('victory');
+              for (let k = 0; k < 35; k++) this.createConfetti();
+              return;
+            }
+          }
+        }
+      }
+
+      createConfetti() {
+        const colors = ['#f43f5e', '#3b82f6', '#10b981', '#fbbf24', '#a855f7', '#ec4899'];
+        this.particles.push({
+          x: Math.random() * this.vWidth, y: -10,
+          vx: (Math.random() - 0.5) * 3, vy: 2 + Math.random() * 3,
+          gravity: 0.05, size: 4 + Math.random() * 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          alpha: 1, life: 70, rot: Math.random() * Math.PI * 2, vRot: (Math.random() - 0.5) * 0.2
+        });
+      }
+
+      draw() {
+        const ctx = this.ctx;
+        ctx.clearRect(0, 0, this.vWidth, this.vHeight);
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, this.vHeight);
+        bgGrad.addColorStop(0, '#090d16'); bgGrad.addColorStop(1, '#1e293b');
+        ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, this.vWidth, this.vHeight);
+
+        // 별빛
+        ctx.fillStyle = 'rgba(255,255,255,0.25)';
+        [[30,40],[120,80],[250,45],[320,110],[70,160],[290,190],[180,70]].forEach(([sx,sy]) => ctx.fillRect(sx,sy,2,2));
+
+        // 바닥
+        ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(0, 430); ctx.lineTo(this.vWidth, 430); ctx.stroke();
+        ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 430, this.vWidth, this.vHeight - 430);
+
+        // 똥
+        this.poops.forEach(p => {
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rotation);
+          const r = p.radius;
+          ctx.fillStyle = '#854d0e'; ctx.beginPath(); ctx.ellipse(0, r*0.4, r*1.1, r*0.5, 0, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#92400e'; ctx.beginPath(); ctx.ellipse(0, -r*0.1, r*0.85, r*0.45, 0, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#78350f'; ctx.beginPath(); ctx.moveTo(-r*0.5, -r*0.2); ctx.quadraticCurveTo(0, -r*1.2, r*0.4, -r*1.1); ctx.quadraticCurveTo(r*0.2, -r*0.5, r*0.5, -r*0.2); ctx.fill();
+          ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(-r*0.35, -r*0.05, r*0.22, 0, Math.PI*2); ctx.arc(r*0.35, -r*0.05, r*0.22, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.arc(-r*0.35+1, -r*0.05, r*0.12, 0, Math.PI*2); ctx.arc(r*0.35+1, -r*0.05, r*0.12, 0, Math.PI*2); ctx.fill();
+          ctx.restore();
+        });
+
+        // 코인
+        this.coins.forEach(c => {
+          ctx.save(); ctx.translate(c.x, c.y);
+          const sx = Math.cos(c.anim); ctx.scale(Math.abs(sx) < 0.15 ? 0.15 : sx, 1);
+          ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(0, 0, c.radius, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.arc(0, 0, c.radius * 0.82, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#b45309'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('★', 0, 1);
+          ctx.restore();
+        });
+
+        // 파티클
+        this.particles.forEach(pt => {
+          ctx.save(); ctx.globalAlpha = pt.alpha; ctx.fillStyle = pt.color;
+          if (pt.rot !== undefined) {
+            ctx.translate(pt.x, pt.y); ctx.rotate(pt.rot); ctx.fillRect(-pt.size/2, -pt.size/2, pt.size, pt.size);
+          } else {
+            ctx.beginPath(); ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI*2); ctx.fill();
+          }
+          ctx.restore();
+        });
+
+        // 플로팅 텍스트
+        this.floatingTexts.forEach(ft => {
+          ctx.save(); ctx.globalAlpha = ft.alpha; ctx.fillStyle = ft.color;
+          ctx.font = 'bold 16px "JetBrains Mono", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(ft.text, ft.x, ft.y);
+          ctx.restore();
+        });
+
+        // 졸라맨
+        ctx.save();
+        ctx.translate(this.player.x, this.player.y);
+        if (this.gameState === 'GAMEOVER') {
+          ctx.rotate(this.player.fallAngle);
+          ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+          ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.arc(0, -48, 9, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+          ctx.font = '16px serif'; ctx.textAlign = 'center'; ctx.fillText('💩', 0, -58);
+          ctx.strokeStyle = '#94a3b8'; ctx.beginPath(); ctx.moveTo(0, -39); ctx.lineTo(0, -20); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(0, -20); ctx.lineTo(-8, -5); ctx.lineTo(-12, 0); ctx.moveTo(0, -20); ctx.lineTo(8, -5); ctx.lineTo(14, 0);
+          ctx.moveTo(0, -36); ctx.lineTo(-14, -28); ctx.moveTo(0, -36); ctx.lineTo(14, -28); ctx.stroke();
+        } else if (this.gameState === 'VICTORY') {
+          const t = this.player.danceTimer;
+          const bounce = Math.abs(Math.sin(t * 3)) * 6;
+          const sw = Math.cos(t * 3) * 6;
+          ctx.strokeStyle = '#4ade80'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+          ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.arc(sw*0.5, -52 - bounce, 9, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+          ctx.font = '16px serif'; ctx.textAlign = 'center'; ctx.fillText('👑', sw*0.5, -64 - bounce);
+          ctx.strokeStyle = '#f8fafc'; ctx.beginPath(); ctx.moveTo(sw*0.5, -43 - bounce); ctx.lineTo(0, -22 - bounce); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(sw*0.5, -40 - bounce); ctx.lineTo(-16, -42 - bounce + Math.sin(t*3)*14); ctx.lineTo(-24, -50 - bounce + Math.sin(t*3)*14);
+          ctx.moveTo(sw*0.5, -40 - bounce); ctx.lineTo(16, -42 - bounce - Math.sin(t*3)*14); ctx.lineTo(24, -50 - bounce - Math.sin(t*3)*14); ctx.stroke();
+          const dStep = Math.sin(t * 3);
+          ctx.beginPath(); ctx.moveTo(0, -22 - bounce); ctx.lineTo(-8 + dStep*8, -10); ctx.lineTo(-8 + dStep*8, 0);
+          ctx.moveTo(0, -22 - bounce); ctx.lineTo(8 - dStep*8, -10); ctx.lineTo(8 - dStep*8, 0); ctx.stroke();
+        } else {
+          ctx.scale(this.player.facing, 1);
+          ctx.strokeStyle = '#f8fafc'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+          const bounce = this.player.isMoving ? Math.abs(Math.sin(this.player.walkFrame)) * 4 : Math.sin(this.player.walkFrame) * 2;
+          ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.arc(0, -52 - bounce, 9, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#38bdf8'; ctx.beginPath(); ctx.arc(3, -53 - bounce, 1.8, 0, Math.PI*2); ctx.fill();
+          ctx.beginPath(); ctx.moveTo(0, -43 - bounce); ctx.lineTo(0, -22 - bounce); ctx.stroke();
+          const legSw = this.player.isMoving ? Math.sin(this.player.walkFrame) * 0.8 : 0;
+          ctx.beginPath(); ctx.moveTo(0, -22 - bounce); ctx.lineTo(Math.sin(legSw)*10 + 4, -10 - bounce); ctx.lineTo(Math.sin(legSw)*16 + 6, 0);
+          ctx.moveTo(0, -22 - bounce); ctx.lineTo(-Math.sin(legSw)*10 - 4, -10 - bounce); ctx.lineTo(-Math.sin(legSw)*16 - 6, 0); ctx.stroke();
+          const armSw = this.player.isMoving ? -Math.sin(this.player.walkFrame) * 0.9 : 0;
+          ctx.beginPath(); ctx.moveTo(0, -39 - bounce); ctx.lineTo(Math.sin(armSw)*14 + 6, -27 - bounce); ctx.moveTo(0, -39 - bounce); ctx.lineTo(-Math.sin(armSw)*14 - 6, -27 - bounce); ctx.stroke();
+        }
+        ctx.restore();
+      }
+    }
+
     const REGISTERED_GAMES = [
       {
         meta: {
@@ -450,6 +902,18 @@
           thumbnailColor: 'linear-gradient(135deg, #10b981 0%, #064e3b 100%)'
         },
         GameClass: SnakeGamePlugin
+      },
+      {
+        meta: {
+          id: 'dodge-poop',
+          title: '똥 피하기 (Avoid Poop)',
+          description: '하늘에서 떨어지는 똥을 피하고 황금 코인 50개를 모아 탈출하세요! 춤추는 졸라맨!',
+          author: 'Antigravity Team',
+          category: '아케이드 / 액션',
+          icon: '💩',
+          thumbnailColor: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)'
+        },
+        GameClass: DodgePoopGamePlugin
       }
     ];
 

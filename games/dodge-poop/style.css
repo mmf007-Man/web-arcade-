@@ -1,0 +1,254 @@
+/* ========================================================
+   똥 피하기 게임 (Avoid Poop Game) - Style Sheet
+   ======================================================== */
+
+.dp-game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  color: #f8fafc;
+}
+
+/* 상단 헤더 & 상태창 */
+.dp-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 14px;
+  border-radius: 14px;
+  margin-bottom: 10px;
+  backdrop-filter: blur(8px);
+}
+
+.dp-score-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.dp-coin-icon {
+  font-size: 1.2rem;
+  animation: dp-coin-spin 2s linear infinite;
+  display: inline-block;
+}
+
+@keyframes dp-coin-spin {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.dp-target-badge {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.dp-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dp-sound-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f8fafc;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.dp-sound-btn:hover, .dp-sound-btn:active {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+}
+
+/* 목표치 프로그레스 바 */
+.dp-progress-wrap {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.dp-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  border-radius: 999px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+}
+
+/* 캔버스 뷰포트 */
+.dp-canvas-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  max-height: 440px;
+  background: #0f172a;
+  border: 2px solid rgba(56, 189, 248, 0.3);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+.dp-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 오버레이 (시작, 게임오버, 승리) */
+.dp-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+  z-index: 10;
+  transition: opacity 0.25s ease;
+}
+
+.dp-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dp-overlay-icon {
+  font-size: 3.5rem;
+  margin-bottom: 8px;
+  animation: dp-bounce 1s ease-in-out infinite alternate;
+}
+
+@keyframes dp-bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-8px); }
+}
+
+.dp-overlay-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.dp-overlay-desc {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+
+.dp-result-score {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fbbf24;
+  margin-bottom: 16px;
+  background: rgba(251, 191, 36, 0.1);
+  padding: 6px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.dp-btn-primary {
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  color: #ffffff;
+  border: none;
+  padding: 12px 28px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4);
+  transition: all 0.2s ease;
+}
+
+.dp-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.6);
+}
+
+.dp-btn-primary:active {
+  transform: translateY(1px);
+}
+
+.dp-btn-victory {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+}
+
+.dp-btn-victory:hover {
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+}
+
+/* 모바일 가상 조작 버튼 패드 */
+.dp-controls {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.dp-touch-btn {
+  flex: 1;
+  background: #1e293b;
+  border: 2px solid #334155;
+  color: #f8fafc;
+  padding: 14px 0;
+  border-radius: 14px;
+  font-size: 1.3rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.dp-touch-btn:active, .dp-touch-btn.active {
+  background: #38bdf8;
+  color: #0f172a;
+  border-color: #38bdf8;
+  transform: scale(0.96);
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+}
+
+.dp-keyboard-hint {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 8px;
+  text-align: center;
+}

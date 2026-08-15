@@ -45,3 +45,12 @@
 ### 6. 최상위 루트 디렉터리 명칭 변경
 - **변경 전**: `/Users/jeong-yuyeong/Documents/samplgame/minesweeper`
 - **변경 후**: `/Users/jeong-yuyeong/Documents/samplgame/web-arcade`
+
+---
+
+### 7. 똥 피하기 (Avoid Poop) 게임 탑재 및 전 플랫폼 동기화
+- **배경**: 모바일 및 PC 지원, 졸라맨 캐릭터 애니메이션(달리기, 피격 쓰러짐, 승리 댄스), 똥 낙하 및 바닥 스플래시 파티클, 황금 코인 50개 목표 시스템을 갖춘 신규 아케이드 게임 요청.
+- **조치 사항**:
+  - `games/dodge-poop/index.js` 및 `style.css` 신규 개발.
+  - `games/manifest.json`, `js/registry.js`, `game.html`, `README.md` 전 파일 카탈로그 100% 동기화.
+  - Web Audio API 기반 효과음(코인 챠링, 스플래시, 피격음, 승리 팡파레) 자체 합성 내장.
