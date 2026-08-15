@@ -1,12 +1,12 @@
 export const meta = {
   id: 'tetris',
   title: '테트리스 (Tetris)',
-  description: '블록을 회전시키고 가득 채워 줄을 지워보세요! 터치 스크롤 차단 & 민감한 고성능 드래그 조작 지원',
+  description: '블록을 회전시키고 가득 채워 줄을 지워보세요! 모바일 버튼 조작 완벽 지원',
   author: 'Arcade Contributor',
   category: '퍼즐 / 아케이드',
   icon: '🧱',
   thumbnailColor: 'linear-gradient(135deg, #a855f7 0%, #581c87 100%)',
-  version: '1.4.0'
+  version: '2.0.0'
 };
 
 const COLS = 10;
@@ -50,17 +50,11 @@ export class Game {
     this.gameInterval = null;
     this.isGameOver = false;
 
-    // 터치 민감 드래그 상태
-    this.touchStartX = 0;
-    this.touchStartY = 0;
-    this.lastDragX = 0;
-    this.touchStartTime = 0;
-    this.isDragging = false;
+    // 버튼 길게 누르기 (좌/우 연속 이동)
+    this._holdTimer = null;
+    this._holdInterval = null;
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
-    this.handleTouchStart = this.handleTouchStart.bind(this);
-    this.handleTouchMove = this.handleTouchMove.bind(this);
-    this.handleTouchEnd = this.handleTouchEnd.bind(this);
   }
 
   loadStyle() {
@@ -82,12 +76,8 @@ export class Game {
 
   unmount() {
     this.stopGame();
+    this._clearHold();
     window.removeEventListener('keydown', this.handleKeyDown);
-    if (this.canvas) {
-      this.canvas.removeEventListener('touchstart', this.handleTouchStart);
-      this.canvas.removeEventListener('touchmove', this.handleTouchMove);
-      this.canvas.removeEventListener('touchend', this.handleTouchEnd);
-    }
     if (this.container) {
       this.container.innerHTML = '';
     }
@@ -96,6 +86,7 @@ export class Game {
   initUI() {
     this.container.innerHTML = `
       <div class="tetris-container">
+        <!-- 상단 대시보드 -->
         <div class="tetris-dashboard">
           <div class="tetris-score-info">
             <span>점수: <span id="t-score">0</span></span>
@@ -107,18 +98,23 @@ export class Game {
           </div>
         </div>
 
+        <!-- 게임 캔버스 -->
         <canvas id="tetris-canvas" width="180" height="360" class="tetris-canvas"></canvas>
 
-        <div class="tetris-gesture-guide">
-          <p>👇 <b>스마트폰 터치 조작 안내</b></p>
-          <ul>
-            <li>👈👉 <b>손가락 좌우 드래그</b>: 블록 실시간 연속 이동</li>
-            <li>👆 <b>가벼운 탭</b>: 블록 회전</li>
-            <li>👇 <b>아래로 쓸어내리기</b>: 하드 드롭</li>
-          </ul>
+        <!-- 모바일 컨트롤 버튼 패드 -->
+        <div class="tetris-controls">
+          <!-- 이동 버튼 행 -->
+          <div class="tetris-controls-row">
+            <button class="t-ctrl-btn move" id="t-btn-left" aria-label="Left">◀</button>
+            <button class="t-ctrl-btn rotate" id="t-btn-rotate" aria-label="Rotate">↻</button>
+            <button class="t-ctrl-btn move" id="t-btn-right" aria-label="Right">▶</button>
+          </div>
+          <!-- 하드드롭 + 재시작 행 -->
+          <div class="tetris-controls-row">
+            <button class="t-ctrl-btn drop" id="t-btn-drop" aria-label="Hard Drop">▼▼</button>
+            <button class="t-ctrl-btn restart" id="t-btn-restart" aria-label="Restart">↺</button>
+          </div>
         </div>
-
-        <button class="t-btn-wide" id="t-btn-restart">다시 시작</button>
       </div>
     `;
 
@@ -127,69 +123,68 @@ export class Game {
     this.nextCanvas = this.container.querySelector('#tetris-next-canvas');
     this.nextCtx = this.nextCanvas.getContext('2d');
 
-    this.container.querySelector('#t-btn-restart').addEventListener('click', () => this.resetGame());
-
-    // 스마트폰 스크롤 차단 및 터치 드래그 이벤트 (non-passive)
-    this.canvas.addEventListener('touchstart', this.handleTouchStart, { passive: false });
-    this.canvas.addEventListener('touchmove', this.handleTouchMove, { passive: false });
-    this.canvas.addEventListener('touchend', this.handleTouchEnd, { passive: false });
-
+    // 키보드
     window.addEventListener('keydown', this.handleKeyDown);
+
+    // 버튼 바인딩
+    this._bindBtn('t-btn-left', () => this.moveLeft(), true);
+    this._bindBtn('t-btn-right', () => this.moveRight(), true);
+    this._bindBtn('t-btn-rotate', () => this.rotate(), false);
+    this._bindBtn('t-btn-drop', () => this.hardDrop(), false);
+
+    this.container.querySelector('#t-btn-restart').addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      this.resetGame();
+    }, { passive: false });
+    this.container.querySelector('#t-btn-restart').addEventListener('mousedown', () => this.resetGame());
   }
 
-  handleTouchStart(e) {
-    if (this.isGameOver) return;
-    if (e.cancelable) e.preventDefault();
-    const touch = e.touches[0];
-    this.touchStartX = touch.clientX;
-    this.touchStartY = touch.clientY;
-    this.lastDragX = touch.clientX;
-    this.touchStartTime = Date.now();
-    this.isDragging = true;
-  }
+  // 버튼에 tap + hold(연속 이동) 바인딩
+  _bindBtn(id, action, holdable) {
+    const btn = this.container.querySelector(`#${id}`);
+    if (!btn) return;
 
-  handleTouchMove(e) {
-    if (this.isGameOver || !this.isDragging) return;
-    if (e.cancelable) e.preventDefault(); // 웹 브라우저 스크롤 완전 차단
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - this.lastDragX;
-    const dragThreshold = 10; // 10px로 민감도 향상
-
-    if (deltaX > dragThreshold) {
-      const steps = Math.floor(deltaX / dragThreshold);
-      for (let i = 0; i < steps; i++) {
-        this.moveRight();
+    const start = (e) => {
+      if (e.cancelable) e.preventDefault();
+      if (this.isGameOver) return;
+      action();
+      if (holdable) {
+        this._clearHold();
+        // 400ms 후 연속 실행 시작 (80ms 간격)
+        this._holdTimer = setTimeout(() => {
+          this._holdInterval = setInterval(() => {
+            if (!this.isGameOver) action();
+          }, 80);
+        }, 400);
       }
-      this.lastDragX = touch.clientX;
-    } else if (deltaX < -dragThreshold) {
-      const steps = Math.floor(Math.abs(deltaX) / dragThreshold);
-      for (let i = 0; i < steps; i++) {
-        this.moveLeft();
-      }
-      this.lastDragX = touch.clientX;
-    }
+    };
+
+    const stop = () => this._clearHold();
+
+    btn.addEventListener('touchstart', start, { passive: false });
+    btn.addEventListener('mousedown', start);
+    btn.addEventListener('touchend', stop, { passive: false });
+    btn.addEventListener('mouseup', stop);
+    btn.addEventListener('mouseleave', stop);
   }
 
-  handleTouchEnd(e) {
-    if (this.isGameOver) return;
-    if (e.cancelable) e.preventDefault();
-    this.isDragging = false;
-    const touch = e.changedTouches[0];
-    const totalDeltaX = touch.clientX - this.touchStartX;
-    const totalDeltaY = touch.clientY - this.touchStartY;
-    const duration = Date.now() - this.touchStartTime;
+  _clearHold() {
+    if (this._holdTimer) { clearTimeout(this._holdTimer); this._holdTimer = null; }
+    if (this._holdInterval) { clearInterval(this._holdInterval); this._holdInterval = null; }
+  }
 
-    // 아래로 빠른 스와이프 -> 하드 드롭
-    if (totalDeltaY > 30 && Math.abs(totalDeltaY) > Math.abs(totalDeltaX)) {
-      this.hardDrop();
-    } else if (Math.abs(totalDeltaX) < 8 && Math.abs(totalDeltaY) < 8 && duration < 250) {
-      // 제자리 탭 -> 회전
-      this.rotate();
-    }
+  handleKeyDown(e) {
+    if (this.isGameOver) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); this.moveLeft(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); this.moveRight(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); this.moveDown(); }
+    else if (e.key === 'ArrowUp' || e.key === 'z') { this.rotate(); }
+    else if (e.key === ' ') { e.preventDefault(); this.hardDrop(); }
   }
 
   resetGame() {
     this.stopGame();
+    this._clearHold();
     this.board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
     this.score = 0;
     this.lines = 0;
@@ -225,26 +220,30 @@ export class Game {
     if (this.checkCollision(this.currentPiece.x, this.currentPiece.y, this.currentPiece.shape)) {
       this.isGameOver = true;
       this.stopGame();
-      alert(`🎮 Game Over! 최종 점수: ${this.score}`);
+      this._showGameOver();
     }
 
     this.drawNextPiece();
   }
 
-  handleKeyDown(e) {
-    if (this.isGameOver) return;
-    if (e.key === 'ArrowLeft') {
-      this.moveLeft();
-    } else if (e.key === 'ArrowRight') {
-      this.moveRight();
-    } else if (e.key === 'ArrowDown') {
-      this.moveDown();
-    } else if (e.key === 'ArrowUp' || e.key === 'z') {
-      this.rotate();
-    } else if (e.key === ' ') {
-      e.preventDefault();
-      this.hardDrop();
-    }
+  _showGameOver() {
+    // 캔버스 위에 게임오버 오버레이 렌더링
+    const ctx = this.ctx;
+    ctx.fillStyle = 'rgba(11, 15, 25, 0.82)';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    ctx.fillStyle = '#ef4444';
+    ctx.font = 'bold 22px "Outfit", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('GAME OVER', this.canvas.width / 2, this.canvas.height / 2 - 16);
+
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = '14px "Outfit", sans-serif';
+    ctx.fillText(`최종 점수: ${this.score}`, this.canvas.width / 2, this.canvas.height / 2 + 12);
+
+    ctx.fillStyle = '#a855f7';
+    ctx.font = '12px "Outfit", sans-serif';
+    ctx.fillText('↺ 버튼으로 다시 시작', this.canvas.width / 2, this.canvas.height / 2 + 36);
   }
 
   moveLeft() {
