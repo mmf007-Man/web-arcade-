@@ -174,7 +174,7 @@
     .modal-close-btn { background: transparent; border: none; color: var(--text-secondary); font-size: 1.4rem; cursor: pointer; padding: 2px 6px; }
     .modal-content { padding: 16px; overflow-y: auto; display: flex; justify-content: center; align-items: center; flex: 1; }
 
-    /* 지뢰찾기 스타일 */
+    /* 지뢰찾기 */
     .ms-game-container { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
     .ms-difficulty-selector { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
     .ms-difficulty-btn { background: #334155; border: 1px solid #475569; color: #f8fafc; padding: 5px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
@@ -189,23 +189,24 @@
     .ms-cell.flagged { color: #f59e0b; }
     .ms-cell[data-count="1"] { color: #38bdf8; } .ms-cell[data-count="2"] { color: #4ade80; } .ms-cell[data-count="3"] { color: #f87171; }
 
-    /* 스네이크 스타일 */
+    /* 스네이크 */
     .snake-container { display: flex; flex-direction: column; align-items: center; gap: 14px; color: #f8fafc; width: 100%; }
     .snake-score-board { display: flex; gap: 16px; font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: bold; }
     .snake-canvas { background-color: #0f172a; border: 2px solid #38bdf8; border-radius: 8px; max-width: 100%; height: auto; }
     .snake-btn { background: #38bdf8; color: #0f172a; border: none; padding: 6px 14px; font-weight: bold; border-radius: 6px; cursor: pointer; }
 
-    /* 테트리스 스타일 (그림자 & Next 뷰포트 지원) */
+    /* 테트리스 터치 제스처 전용 */
     .tetris-container { display: flex; flex-direction: column; align-items: center; gap: 10px; color: #f8fafc; width: 100%; }
     .tetris-dashboard { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 220px; background: rgba(15, 23, 42, 0.7); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08); }
     .tetris-score-info { display: flex; flex-direction: column; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: bold; }
     .tetris-next-box { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.75rem; color: #38bdf8; font-weight: bold; }
     .tetris-next-canvas { background-color: #0f172a; border: 1px solid #475569; border-radius: 6px; }
-    .tetris-canvas { background-color: #0f172a; border: 2px solid #a855f7; border-radius: 8px; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3); }
-    .tetris-touch-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%; max-width: 220px; }
-    .t-btn { background: #1e293b; border: 1px solid #475569; color: #f8fafc; padding: 8px; font-size: 1rem; font-weight: bold; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .t-btn:active { background: #a855f7; color: #0f172a; }
-    .t-btn-wide { grid-column: span 3; background: #a855f7; color: #0f172a; border: none; }
+    .tetris-canvas { background-color: #0f172a; border: 2px solid #a855f7; border-radius: 8px; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3); touch-action: none; }
+    .tetris-gesture-guide { background: rgba(168, 85, 247, 0.1); border: 1px dashed rgba(168, 85, 247, 0.3); border-radius: 10px; padding: 8px 12px; width: 100%; max-width: 220px; font-size: 0.75rem; }
+    .tetris-gesture-guide p { color: #a855f7; margin-bottom: 4px; }
+    .tetris-gesture-guide ul { list-style: none; display: flex; flex-direction: column; gap: 2px; color: #94a3b8; }
+    .t-btn-wide { width: 100%; max-width: 220px; background: #a855f7; color: #0f172a; border: none; padding: 10px; font-size: 0.95rem; font-weight: bold; border-radius: 8px; cursor: pointer; }
+    .t-btn-wide:active { background: #9333ea; color: #ffffff; }
   </style>
 </head>
 <body>
@@ -437,16 +438,19 @@
       }
     }
 
-    // --- 3. 테트리스 (하단 그림자 Ghost & Next Piece 연동) ---
+    // --- 3. 테트리스 (터치 제스처 전용) ---
     class TetrisGamePlugin {
       constructor() {
         this.container = null; this.cols = 10; this.rows = 20; this.blockSize = 18;
         this.board = Array.from({ length: 20 }, () => Array(10).fill(0));
         this.score = 0; this.lines = 0; this.currentPiece = null; this.nextPiece = null;
         this.interval = null; this.isGameOver = false;
+        this.touchSX = 0; this.touchSY = 0; this.touchSTime = 0;
         this.shapes = [[], [[1,1,1,1]], [[1,0,0],[1,1,1]], [[0,0,1],[1,1,1]], [[1,1],[1,1]], [[0,1,1],[1,1,0]], [[0,1,0],[1,1,1]], [[1,1,0],[0,1,1]]];
         this.colors = ['none', '#06b6d4', '#3b82f6', '#f97316', '#eab308', '#22c55e', '#a855f7', '#ef4444'];
         this.onKey = this.onKey.bind(this);
+        this.onTouchStart = this.onTouchStart.bind(this);
+        this.onTouchEnd = this.onTouchEnd.bind(this);
       }
       mount(container) {
         this.container = container;
@@ -463,25 +467,50 @@
               </div>
             </div>
             <canvas id="tetris-canvas" width="180" height="360" class="tetris-canvas"></canvas>
-            <div class="tetris-touch-controls">
-              <button class="t-btn" onclick="currentGame.rotate()">🔄</button>
-              <button class="t-btn" onclick="currentGame.rotate()">⬆️</button>
-              <button class="t-btn" onclick="currentGame.hardDrop()">⚡</button>
-              <button class="t-btn" onclick="currentGame.moveLeft()">⬅️</button>
-              <button class="t-btn" onclick="currentGame.moveDown()">⬇️</button>
-              <button class="t-btn" onclick="currentGame.moveRight()">➡️</button>
-              <button class="t-btn t-btn-wide" onclick="currentGame.reset()">다시 시작</button>
+            <div class="tetris-gesture-guide">
+              <p>👇 <b>화면 터치 제스처 조작</b></p>
+              <ul>
+                <li>👆 <b>짧은 탭</b>: 블록 회전</li>
+                <li>👈👉 <b>좌/우 스와이프</b>: 블록 이동</li>
+                <li>👇 <b>아래 스와이프</b>: 하드 드롭</li>
+              </ul>
             </div>
+            <button class="t-btn-wide" onclick="currentGame.reset()">다시 시작</button>
           </div>
         `;
         this.canvas = this.container.querySelector('#tetris-canvas');
         this.ctx = this.canvas.getContext('2d');
         this.nextCanvas = this.container.querySelector('#tetris-next-canvas');
         this.nextCtx = this.nextCanvas.getContext('2d');
+
+        this.canvas.addEventListener('touchstart', this.onTouchStart, { passive: false });
+        this.canvas.addEventListener('touchend', this.onTouchEnd, { passive: false });
         window.addEventListener('keydown', this.onKey);
         this.reset();
       }
-      unmount() { this.stop(); window.removeEventListener('keydown', this.onKey); if (this.container) this.container.innerHTML = ''; }
+      unmount() {
+        this.stop(); window.removeEventListener('keydown', this.onKey);
+        if (this.canvas) {
+          this.canvas.removeEventListener('touchstart', this.onTouchStart);
+          this.canvas.removeEventListener('touchend', this.onTouchEnd);
+        }
+        if (this.container) this.container.innerHTML = '';
+      }
+      onTouchStart(e) {
+        if (this.isGameOver) return; e.preventDefault();
+        const t = e.touches[0]; this.touchSX = t.clientX; this.touchSY = t.clientY; this.touchSTime = Date.now();
+      }
+      onTouchEnd(e) {
+        if (this.isGameOver) return; e.preventDefault();
+        const t = e.changedTouches[0];
+        const dx = t.clientX - this.touchSX, dy = t.clientY - this.touchSY, dur = Date.now() - this.touchSTime;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          if (dx > 25) this.moveRight(); else if (dx < -25) this.moveLeft();
+        } else {
+          if (dy > 25) this.hardDrop();
+          else if (Math.abs(dx) < 15 && Math.abs(dy) < 15 && dur < 300) this.rotate();
+        }
+      }
       reset() {
         this.stop(); this.board = Array.from({ length: 20 }, () => Array(10).fill(0));
         this.score = 0; this.lines = 0; this.isGameOver = false;
@@ -588,7 +617,6 @@
             }
           }
         }
-        // 하단 그림자 (Ghost Piece)
         if (this.currentPiece) {
           const gy = this.getGhostY(), { x, shape, typeId } = this.currentPiece;
           for (let r = 0; r < shape.length; r++) {
@@ -603,7 +631,6 @@
             }
           }
         }
-        // 현재 조종 중인 블록
         if (this.currentPiece) {
           const { x, y, shape, typeId } = this.currentPiece;
           for (let r = 0; r < shape.length; r++) {
@@ -647,7 +674,7 @@
         meta: {
           id: 'tetris',
           title: '테트리스 (Tetris)',
-          description: '블록을 차곡차곡 쌓아 줄을 지워보세요! 그림자 & 미리보기 기능 포함',
+          description: '블록을 차곡차곡 쌓아 줄을 지워보세요! 터치 제스처 조작 지원',
           author: 'Arcade Contributor',
           category: '퍼즐 / 아케이드',
           icon: '🧱',

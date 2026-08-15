@@ -1,12 +1,12 @@
 export const meta = {
   id: 'tetris',
   title: '테트리스 (Tetris)',
-  description: '블록을 회전시키고 가득 채워 줄을 지워보세요! 하단 그림자 & 다음 블록 미리보기 포함',
+  description: '블록을 회전시키고 가득 채워 줄을 지워보세요! 화면 터치 제스처(탭:회전, 스와이프:이동/드롭) 지원',
   author: 'Arcade Contributor',
   category: '퍼즐 / 아케이드',
   icon: '🧱',
   thumbnailColor: 'linear-gradient(135deg, #a855f7 0%, #581c87 100%)',
-  version: '1.1.0'
+  version: '1.2.0'
 };
 
 const COLS = 10;
@@ -50,7 +50,14 @@ export class Game {
     this.gameInterval = null;
     this.isGameOver = false;
 
+    // 터치 제스처 트래킹
+    this.touchStartX = 0;
+    this.touchStartY = 0;
+    this.touchStartTime = 0;
+
     this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleTouchStart = this.handleTouchStart.bind(this);
+    this.handleTouchEnd = this.handleTouchEnd.bind(this);
   }
 
   loadStyle() {
@@ -73,6 +80,10 @@ export class Game {
   unmount() {
     this.stopGame();
     window.removeEventListener('keydown', this.handleKeyDown);
+    if (this.canvas) {
+      this.canvas.removeEventListener('touchstart', this.handleTouchStart);
+      this.canvas.removeEventListener('touchend', this.handleTouchEnd);
+    }
     if (this.container) {
       this.container.innerHTML = '';
     }
@@ -94,15 +105,16 @@ export class Game {
 
         <canvas id="tetris-canvas" width="180" height="360" class="tetris-canvas"></canvas>
 
-        <div class="tetris-touch-controls">
-          <button class="t-btn" id="t-btn-rot">🔄</button>
-          <button class="t-btn" id="t-btn-up">⬆️</button>
-          <button class="t-btn" id="t-btn-drop">⚡</button>
-          <button class="t-btn" id="t-btn-left">⬅️</button>
-          <button class="t-btn" id="t-btn-down">⬇️</button>
-          <button class="t-btn" id="t-btn-right">➡️</button>
-          <button class="t-btn t-btn-wide" id="t-btn-restart">다시 시작</button>
+        <div class="tetris-gesture-guide">
+          <p>👇 <b>화면 터치 제스처 조작</b></p>
+          <ul>
+            <li>👆 <b>짧은 탭</b>: 블록 회전</li>
+            <li>👈👉 <b>좌/우 스와이프</b>: 블록 이동</li>
+            <li>👇 <b>아래 스와이프</b>: 하드 드롭</li>
+          </ul>
         </div>
+
+        <button class="t-btn t-btn-wide" id="t-btn-restart">다시 시작</button>
       </div>
     `;
 
@@ -111,15 +123,47 @@ export class Game {
     this.nextCanvas = this.container.querySelector('#tetris-next-canvas');
     this.nextCtx = this.nextCanvas.getContext('2d');
 
-    this.container.querySelector('#t-btn-rot').addEventListener('click', () => this.rotate());
-    this.container.querySelector('#t-btn-up').addEventListener('click', () => this.rotate());
-    this.container.querySelector('#t-btn-left').addEventListener('click', () => this.moveLeft());
-    this.container.querySelector('#t-btn-right').addEventListener('click', () => this.moveRight());
-    this.container.querySelector('#t-btn-down').addEventListener('click', () => this.moveDown());
-    this.container.querySelector('#t-btn-drop').addEventListener('click', () => this.hardDrop());
     this.container.querySelector('#t-btn-restart').addEventListener('click', () => this.resetGame());
 
+    // 화면 터치 제스처 이벤트 등록
+    this.canvas.addEventListener('touchstart', this.handleTouchStart, { passive: false });
+    this.canvas.addEventListener('touchend', this.handleTouchEnd, { passive: false });
+
     window.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  handleTouchStart(e) {
+    if (this.isGameOver) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    this.touchStartX = touch.clientX;
+    this.touchStartY = touch.clientY;
+    this.touchStartTime = Date.now();
+  }
+
+  handleTouchEnd(e) {
+    if (this.isGameOver) return;
+    e.preventDefault();
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - this.touchStartX;
+    const deltaY = touch.clientY - this.touchStartY;
+    const duration = Date.now() - this.touchStartTime;
+
+    const minSwipeDist = 25;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (deltaX > minSwipeDist) {
+        this.moveRight();
+      } else if (deltaX < -minSwipeDist) {
+        this.moveLeft();
+      }
+    } else {
+      if (deltaY > minSwipeDist) {
+        this.hardDrop();
+      } else if (Math.abs(deltaX) < 15 && Math.abs(deltaY) < 15 && duration < 300) {
+        this.rotate();
+      }
+    }
   }
 
   resetGame() {
@@ -314,7 +358,6 @@ export class Game {
     this.ctx.fillStyle = '#0f172a';
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // 격자선 렌더링
     this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
@@ -322,7 +365,6 @@ export class Game {
       }
     }
 
-    // 고정된 블록 렌더링
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
         if (this.board[r][c] !== 0) {
@@ -331,7 +373,6 @@ export class Game {
       }
     }
 
-    // 하단 그림자 (Ghost Piece / Drop Shadow) 렌더링
     if (this.currentPiece) {
       const ghostY = this.getGhostY();
       const { x, shape, typeId } = this.currentPiece;
@@ -344,7 +385,6 @@ export class Game {
       }
     }
 
-    // 현재 떨어지는 블록 렌더링
     if (this.currentPiece) {
       const { x, y, shape, typeId } = this.currentPiece;
       for (let r = 0; r < shape.length; r++) {
