@@ -1,18 +1,29 @@
+// 난이도는 지뢰 밀도(비율)만 정의 - 그리드 크기는 화면에 맞춰 동적 계산
 export const DIFFICULTY_PRESETS = {
-  EASY: { rows: 9, cols: 9, mines: 10, label: '초급' },
-  MEDIUM: { rows: 16, cols: 16, mines: 40, label: '중급' },
-  HARD: { rows: 16, cols: 30, mines: 99, label: '상급' }
+  EASY:   { density: 0.10, label: '초급', mines: null }, // 10% 지뢰
+  MEDIUM: { density: 0.24, label: '중급', mines: null }, // 24% 지뢰
+  HARD:   { density: 0.40, label: '상급', mines: null }, // 40% 지뢰
 };
 
 export class MinesweeperGame {
   constructor(difficulty = DIFFICULTY_PRESETS.EASY) {
-    this.setDifficulty(difficulty);
+    this.rows = 9;
+    this.cols = 9;
+    this.totalMines = 8;
+    this.density = difficulty.density;
+    this.reset();
+  }
+
+  // 실제 화면 공간을 받아 자동으로 업데이트
+  applyGrid(cols, rows) {
+    this.cols = cols;
+    this.rows = rows;
+    this.totalMines = Math.max(1, Math.floor(cols * rows * this.density));
   }
 
   setDifficulty(preset) {
-    this.rows = preset.rows;
-    this.cols = preset.cols;
-    this.totalMines = preset.mines;
+    this.density = preset.density;
+    // rows/cols/mines는 applyGrid()로 설정되므로 여기선 density만 저장
     this.reset();
   }
 

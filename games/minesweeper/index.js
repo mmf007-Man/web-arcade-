@@ -21,6 +21,7 @@ export class Game {
     this.game = null;
     this.timer = null;
     this.styleLink = null;
+    this._resizeObserver = null;
   }
 
   loadStyle() {
@@ -47,6 +48,10 @@ export class Game {
     if (this.timer) {
       this.timer.stop();
     }
+    if (this._resizeObserver) {
+      this._resizeObserver.disconnect();
+      this._resizeObserver = null;
+    }
     if (this.container) {
       this.container.innerHTML = '';
     }
@@ -56,9 +61,9 @@ export class Game {
     this.container.innerHTML = `
       <div class="ms-game-container">
         <div class="ms-difficulty-selector">
-          <button class="ms-difficulty-btn active" data-level="EASY">초급 (9x9)</button>
-          <button class="ms-difficulty-btn" data-level="MEDIUM">중급 (16x16)</button>
-          <button class="ms-difficulty-btn" data-level="HARD">상급 (16x30)</button>
+          <button class="ms-difficulty-btn active" data-level="EASY">초급 💣~10%</button>
+          <button class="ms-difficulty-btn" data-level="MEDIUM">중급 💣~24%</button>
+          <button class="ms-difficulty-btn" data-level="HARD">상급 💣~40%</button>
         </div>
 
         <div class="ms-game-header">
@@ -95,6 +100,19 @@ export class Game {
     });
 
     this.updateBestScoreDisplay();
+
+    // 화면 크기 변경 시 그리드 + 셀 크기 재계산 (ge임 중이지 않을 때만)
+    if (window.ResizeObserver) {
+      this._resizeObserver = new ResizeObserver(() => {
+        // 게임 시작 전(첫 클릭 전)에만 그리드 자동 재계산
+        if (this.game.isFirstClick) {
+          this._applyDynamicGrid();
+        }
+        this.renderBoard();
+      });
+      const containerEl = this.container.querySelector('.ms-game-container');
+      if (containerEl) this._resizeObserver.observe(containerEl);
+    }
   }
 
   changeDifficulty(levelKey) {
@@ -108,6 +126,8 @@ export class Game {
   }
 
   resetGame() {
+    // 리셋 전 실제 화면 공간 기준으로 그리드 재계산
+    this._applyDynamicGrid();
     this.game.reset();
     this.timer.reset();
     const resetBtn = this.container.querySelector('#ms-reset-btn');
@@ -117,10 +137,58 @@ export class Game {
     this.renderBoard();
   }
 
+  // 실제 화면 높이/너비를 측정하여 게임에 그리드 적용
+  _applyDynamicGrid() {
+    const dims = this.computeGridDimensions();
+    this.game.applyGrid(dims.cols, dims.rows);
+  }
+
+  // 화면 실제 가용 공간을 측정하여 cols, rows, cellSize를 자동 계산
+  computeGridDimensions() {
+    const containerEl = this.container.querySelector('.ms-game-container');
+    const boardEl = this.container.querySelector('#ms-board');
+    if (!containerEl || !boardEl) return { cols: 9, rows: 16, cellSize: 26 };
+
+    // 보드를 제외한 나머지 UI 요소들의 센세로 가용 높이 계산
+    const containerH = containerEl.clientHeight;
+    const siblingsH = Array.from(containerEl.children)
+      .filter(el => el !== boardEl)
+      .reduce((sum, el) => sum + el.offsetHeight, 0);
+    const gapCount = containerEl.children.length - 1;
+    const gapTotal = 16 * gapCount; // CSS gap: 16px
+    const availableH = Math.max(100, containerH - siblingsH - gapTotal - 8);
+    const availableW = Math.max(100, containerEl.clientWidth - 16); // 패딩 8px 좌우
+
+    // 개수에 따라 세포시즈를 계산: 최소 24px, 최대 36px
+    // 목표: 유효한 캠 제거 후 알맞는 셀 수를 체움
+    const CELL_MIN = 24;
+    const CELL_MAX = 36;
+    const GAP = 2;
+
+    // 사용 가능 공간에 맞는 최대 열/행 계산 (최소 셀 기준)
+    const maxCols = Math.floor((availableW + GAP) / (CELL_MIN + GAP));
+    const maxRows = Math.floor((availableH + GAP) / (CELL_MIN + GAP));
+
+    // 끝 그리드 크기로 백�하지 않도록 클램프
+    const cols = Math.max(6, Math.min(20, maxCols));
+    const rows = Math.max(8, Math.min(30, maxRows));
+
+    // 그 가용 공간에 배비되는 실제 셀 크기
+    const cellByW = Math.floor((availableW - GAP * (cols - 1)) / cols);
+    const cellByH = Math.floor((availableH - GAP * (rows - 1)) / rows);
+    const cellSize = Math.max(CELL_MIN, Math.min(CELL_MAX, Math.min(cellByW, cellByH)));
+
+    return { cols, rows, cellSize };
+  }
+
   renderBoard() {
     const boardEl = this.container.querySelector('#ms-board');
     if (!boardEl) return;
-    boardEl.style.gridTemplateColumns = `repeat(${this.game.cols}, 36px)`;
+
+    // 화면 크기에 맞는 셀 크기 동적 계산
+    const { cols, rows, cellSize } = this.computeGridDimensions();
+    boardEl.style.setProperty('--ms-cell-size', `${cellSize}px`);
+    boardEl.style.gridTemplateColumns = `repeat(${cols}, ${cellSize}px)`;
     boardEl.innerHTML = '';
 
     for (let r = 0; r < this.game.rows; r++) {
