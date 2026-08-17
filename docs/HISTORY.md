@@ -72,5 +72,18 @@
   - **동적 모듈 로더 연동**: `js/registry.js`가 `games/manifest.json`을 읽어 신규 게임 모듈을 자동 인식하도록 최적화.
   - **`game.html` 및 빌더 제거**: 중복된 대용량 단일 배포 파일과 빌드 스크립트를 제거하고, 더블클릭 바로가기용 `play.html` 제공으로 프로젝트 구조를 극도로 단순화.
 
+---
+
+### 10. 🎰 핀볼(Pinball Classic) 게임 개발 및 물리/사운드/레이아웃 개선
+- **배경**: 우하단 스프링 발사, 점수/마이너스 장애물, 또로또롱 사운드와 신나는 노래, 모바일 지원, 정중앙 아웃홀 및 튀지 않는 미끄러짐 물리를 갖춘 핀볼 게임 요구사항 반영.
+- **조치 사항**:
+  - **스프링 물리 발사기**: 우하단 스프링(Plunger) 조작 및 상단 곡선 유도 아치를 이용한 부드러운 상단 필드 진입 구현.
+  - **다채로운 장애물 & 점수**: ⭐ 스타 범퍼(+5점), 🟢 라운드 범퍼(+1점/+2점), 🔺 슬링샷 반사벽(+3점), 🎯 타겟 스위치(+1점), ☠️ 마이너스 트랩 해골 범퍼(-2점) 및 백 단위가 아닌 1단위 점수 체계 적용.
+  - **8-Bit 아케이드 BGM & 사운드**: Web Audio API 기반 "또로또롱" 아르페지오 Chime 효과음과 110ms 쾌속 템포 칩튠 배경음악 탑재.
+  - **모바일 & PC 완벽 지원**: 방향키(`A`/`D`/`Left`/`Right`/`Space`) 및 모바일 3버튼 터치 컨트롤 패드 구현.
+  - **화면 정중앙(`X=180`) 아웃홀 & 슬라이딩 물리**: 좌우 완벽 대칭 플리퍼와 정중앙 아웃홀 배치, 방향키 미입력 시 공이 튀지 않고 경사면을 따라 미끄러지는 물리 엔진 탑재.
+- **관련 파일**: [`games/pinball/index.js`](file:///c:/Users/xojhj/Desktop/게임/web-arcade--main/web-arcade--main/games/pinball/index.js), [`games/pinball/style.css`](file:///c:/Users/xojhj/Desktop/게임/web-arcade--main/web-arcade--main/games/pinball/style.css), [`games/manifest.json`](file:///c:/Users/xojhj/Desktop/게임/web-arcade--main/web-arcade--main/games/manifest.json), [`js/registry.js`](file:///c:/Users/xojhj/Desktop/게임/web-arcade--main/web-arcade--main/js/registry.js)
+
+
 
 

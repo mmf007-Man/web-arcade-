@@ -18,5 +18,8 @@ elif command -v xdg-open > /dev/null; then
   (sleep 1 && xdg-open http://localhost:3000) &
 fi
 
-# 로컬 개발 서버 실행
-node scripts/server.js
+if command -v python3 > /dev/null; then
+  python3 scripts/server.py
+else
+  python scripts/server.py
+fi

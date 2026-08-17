@@ -15,7 +15,7 @@ export class GameRegistry {
   async loadAllGames() {
     if (this.isLoaded) return Array.from(this.gamesMap.values());
 
-    let gameIds = ['minesweeper', 'snake', 'dodge-poop', 'tetris', 'ladder-climb'];
+    let gameIds = ['minesweeper', 'snake', 'dodge-poop', 'tetris', 'ladder-climb', 'pinball'];
 
     try {
       const response = await fetch('./games/manifest.json');

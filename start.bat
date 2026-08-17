@@ -13,6 +13,7 @@ cd /d "%~dp0"
 start "" http://localhost:3000
 
 :: 로컬 개발 서버 실행
-node scripts/server.js
+set PYTHONUNBUFFERED=1
+python scripts/server.py
 
 pause

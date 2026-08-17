@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>핀볼 클래식 (Pinball Classic)</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body style="background: #0f172a; margin: 0; padding: 20px; display: flex; justify-content: center;">
+  <div id="app"></div>
+  <script type="module">
+    import { Game } from './index.js';
+    const app = document.getElementById('app');
+    const game = new Game();
+    game.mount(app);
+  </script>
+</body>
+</html>
