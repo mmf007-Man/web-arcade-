@@ -18,7 +18,7 @@ export class GameRegistry {
     let gameIds = ['minesweeper', 'snake', 'dodge-poop', 'tetris', 'ladder-climb', 'pinball'];
 
     try {
-      const response = await fetch('./games/manifest.json');
+      const response = await fetch('./games/manifest.json?t=' + Date.now(), { cache: 'no-store' });
       if (response.ok) {
         gameIds = await response.json();
       }
@@ -28,7 +28,7 @@ export class GameRegistry {
 
     for (const id of gameIds) {
       try {
-        const module = await import(`../games/${id}/index.js`);
+        const module = await import(`../games/${id}/index.js?t=${Date.now()}`);
         if (module && module.meta && module.Game) {
           this.gamesMap.set(module.meta.id, {
             meta: module.meta,
