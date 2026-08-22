@@ -1,4 +1,4 @@
-import { MinesweeperGame, DIFFICULTY_PRESETS } from './logic/minesweeperCore.js';
+import { MinesweeperGame, DIFFICULTY_PRESETS } from './logic/minesweeperCore.js?v=1.0.7';
 import { GameTimer } from './logic/timer.js';
 import { soundFx } from './utils/sound.js';
 import { getBestScores, saveBestScore } from './utils/storage.js';
@@ -11,7 +11,7 @@ export const meta = {
   category: '퍼즐 / 전략',
   icon: '💣',
   thumbnailColor: 'linear-gradient(135deg, #ef4444 0%, #991b1b 100%)',
-  version: '1.0.0'
+  version: '1.0.7'
 };
 
 export class Game {
@@ -22,6 +22,8 @@ export class Game {
     this.timer = null;
     this.styleLink = null;
     this._resizeObserver = null;
+    this.cellElements = [];
+    this.longPressTimer = null;
   }
 
   loadStyle() {
@@ -61,15 +63,15 @@ export class Game {
     this.container.innerHTML = `
       <div class="ms-game-container">
         <div class="ms-difficulty-selector">
-          <button class="ms-difficulty-btn active" data-level="EASY">초급 💣~10%</button>
-          <button class="ms-difficulty-btn" data-level="MEDIUM">중급 💣~24%</button>
-          <button class="ms-difficulty-btn" data-level="HARD">상급 💣~40%</button>
+          <button class="ms-difficulty-btn active" data-level="EASY">초급 (9×9)</button>
+          <button class="ms-difficulty-btn" data-level="MEDIUM">중급 (12×12)</button>
+          <button class="ms-difficulty-btn" data-level="HARD">상급 (15×15)</button>
         </div>
 
         <div class="ms-game-header">
           <div class="ms-status-box">
             <span>🚩</span>
-            <span id="ms-mine-count">10</span>
+            <span id="ms-mine-count">15</span>
           </div>
           
           <button class="ms-reset-btn" id="ms-reset-btn">🙂</button>
@@ -101,14 +103,9 @@ export class Game {
 
     this.updateBestScoreDisplay();
 
-    // 화면 크기 변경 시 그리드 + 셀 크기 재계산 (ge임 중이지 않을 때만)
     if (window.ResizeObserver) {
       this._resizeObserver = new ResizeObserver(() => {
-        // 게임 시작 전(첫 클릭 전)에만 그리드 자동 재계산
-        if (this.game.isFirstClick) {
-          this._applyDynamicGrid();
-        }
-        this.renderBoard();
+        this.adjustCellSize();
       });
       const containerEl = this.container.querySelector('.ms-game-container');
       if (containerEl) this._resizeObserver.observe(containerEl);
@@ -126,78 +123,119 @@ export class Game {
   }
 
   resetGame() {
-    // 리셋 전 실제 화면 공간 기준으로 그리드 재계산
-    this._applyDynamicGrid();
     this.game.reset();
     this.timer.reset();
     const resetBtn = this.container.querySelector('#ms-reset-btn');
     if (resetBtn) resetBtn.textContent = '🙂';
     this.updateMineCountUI();
     this.updateBestScoreDisplay();
-    this.renderBoard();
+    this.buildBoardDOM();
+    this.updateBoardDOM();
   }
 
-  // 실제 화면 높이/너비를 측정하여 게임에 그리드 적용
-  _applyDynamicGrid() {
-    const dims = this.computeGridDimensions();
-    this.game.applyGrid(dims.cols, dims.rows);
-  }
-
-  // 화면 실제 가용 공간을 측정하여 cols, rows, cellSize를 자동 계산
-  computeGridDimensions() {
+  computeCellSize() {
     const containerEl = this.container.querySelector('.ms-game-container');
     const boardEl = this.container.querySelector('#ms-board');
-    if (!containerEl || !boardEl) return { cols: 9, rows: 16, cellSize: 26 };
+    if (!containerEl || !boardEl) return 30;
 
-    // 보드를 제외한 나머지 UI 요소들의 센세로 가용 높이 계산
-    const containerH = containerEl.clientHeight;
+    const containerH = containerEl.clientHeight || 500;
     const siblingsH = Array.from(containerEl.children)
       .filter(el => el !== boardEl)
       .reduce((sum, el) => sum + el.offsetHeight, 0);
     const gapCount = containerEl.children.length - 1;
-    const gapTotal = 16 * gapCount; // CSS gap: 16px
-    const availableH = Math.max(100, containerH - siblingsH - gapTotal - 8);
-    const availableW = Math.max(100, containerEl.clientWidth - 16); // 패딩 8px 좌우
+    const gapTotal = 16 * gapCount;
+    const availableH = Math.max(150, containerH - siblingsH - gapTotal - 10);
+    const availableW = Math.max(150, (containerEl.clientWidth || 340) - 16);
 
-    // 개수에 따라 세포시즈를 계산: 최소 24px, 최대 36px
-    // 목표: 유효한 캠 제거 후 알맞는 셀 수를 체움
-    const CELL_MIN = 24;
-    const CELL_MAX = 36;
     const GAP = 2;
+    const cellByW = Math.floor((availableW - GAP * (this.game.cols - 1)) / this.game.cols);
+    const cellByH = Math.floor((availableH - GAP * (this.game.rows - 1)) / this.game.rows);
 
-    // 사용 가능 공간에 맞는 최대 열/행 계산 (최소 셀 기준)
-    const maxCols = Math.floor((availableW + GAP) / (CELL_MIN + GAP));
-    const maxRows = Math.floor((availableH + GAP) / (CELL_MIN + GAP));
-
-    // 끝 그리드 크기로 백�하지 않도록 클램프
-    const cols = Math.max(6, Math.min(20, maxCols));
-    const rows = Math.max(8, Math.min(30, maxRows));
-
-    // 그 가용 공간에 배비되는 실제 셀 크기
-    const cellByW = Math.floor((availableW - GAP * (cols - 1)) / cols);
-    const cellByH = Math.floor((availableH - GAP * (rows - 1)) / rows);
-    const cellSize = Math.max(CELL_MIN, Math.min(CELL_MAX, Math.min(cellByW, cellByH)));
-
-    return { cols, rows, cellSize };
+    return Math.max(18, Math.min(38, Math.min(cellByW, cellByH)));
   }
 
-  renderBoard() {
+  adjustCellSize() {
+    const boardEl = this.container.querySelector('#ms-board');
+    if (!boardEl) return;
+    const cellSize = this.computeCellSize();
+    boardEl.style.setProperty('--ms-cell-size', `${cellSize}px`);
+    boardEl.style.gridTemplateColumns = `repeat(${this.game.cols}, ${cellSize}px)`;
+  }
+
+  buildBoardDOM() {
     const boardEl = this.container.querySelector('#ms-board');
     if (!boardEl) return;
 
-    // 화면 크기에 맞는 셀 크기 동적 계산
-    const { cols, rows, cellSize } = this.computeGridDimensions();
-    boardEl.style.setProperty('--ms-cell-size', `${cellSize}px`);
-    boardEl.style.gridTemplateColumns = `repeat(${cols}, ${cellSize}px)`;
+    this.adjustCellSize();
     boardEl.innerHTML = '';
+    this.cellElements = Array.from({ length: this.game.rows }, () => []);
 
     for (let r = 0; r < this.game.rows; r++) {
       for (let c = 0; c < this.game.cols; c++) {
-        const cell = this.game.board[r][c];
         const cellEl = document.createElement('div');
         cellEl.className = 'ms-cell';
         cellEl.dataset.row = r;
         cellEl.dataset.col = c;
+
+        let isLongPress = false;
+
+        const handlePress = () => {
+          isLongPress = false;
+          this.longPressTimer = setTimeout(() => {
+            isLongPress = true;
+            this.handleCellRightClick(r, c);
+          }, 350);
+        };
+
+        const handleRelease = (e) => {
+          if (this.longPressTimer) {
+            clearTimeout(this.longPressTimer);
+            this.longPressTimer = null;
+          }
+          if (isLongPress) {
+            e.preventDefault();
+            return;
+          }
+        };
+
+        cellEl.addEventListener('click', (e) => {
+          if (isLongPress) {
+            e.preventDefault();
+            return;
+          }
+          this.handleCellClick(r, c);
+        });
+
+        cellEl.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          this.handleCellRightClick(r, c);
+        });
+
+        cellEl.addEventListener('touchstart', handlePress, { passive: true });
+        cellEl.addEventListener('touchend', handleRelease);
+        cellEl.addEventListener('touchmove', () => {
+          if (this.longPressTimer) {
+            clearTimeout(this.longPressTimer);
+            this.longPressTimer = null;
+          }
+        }, { passive: true });
+
+        this.cellElements[r][c] = cellEl;
+        boardEl.appendChild(cellEl);
+      }
+    }
+  }
+
+  updateBoardDOM() {
+    for (let r = 0; r < this.game.rows; r++) {
+      for (let c = 0; c < this.game.cols; c++) {
+        const cell = this.game.board[r][c];
+        const cellEl = this.cellElements[r]?.[c];
+        if (!cellEl) continue;
+
+        cellEl.className = 'ms-cell';
+        cellEl.textContent = '';
+        delete cellEl.dataset.count;
 
         if (cell.isRevealed) {
           cellEl.classList.add('revealed');
@@ -212,14 +250,6 @@ export class Game {
           cellEl.classList.add('flagged');
           cellEl.textContent = '🚩';
         }
-
-        cellEl.addEventListener('click', () => this.handleCellClick(r, c));
-        cellEl.addEventListener('contextmenu', (e) => {
-          e.preventDefault();
-          this.handleCellRightClick(r, c);
-        });
-
-        boardEl.appendChild(cellEl);
       }
     }
   }
@@ -235,7 +265,7 @@ export class Game {
     if (!wasSuccess) return;
 
     soundFx.playClick();
-    this.renderBoard();
+    this.updateBoardDOM();
 
     if (this.game.isGameOver) {
       this.timer.stop();
@@ -260,7 +290,7 @@ export class Game {
     this.game.toggleFlag(r, c);
     soundFx.playFlag();
     this.updateMineCountUI();
-    this.renderBoard();
+    this.updateBoardDOM();
   }
 
   updateTimerUI(sec) {

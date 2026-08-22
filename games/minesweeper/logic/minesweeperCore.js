@@ -1,29 +1,18 @@
-// 난이도는 지뢰 밀도(비율)만 정의 - 그리드 크기는 화면에 맞춰 동적 계산
 export const DIFFICULTY_PRESETS = {
-  EASY:   { density: 0.10, label: '초급', mines: null }, // 10% 지뢰
-  MEDIUM: { density: 0.24, label: '중급', mines: null }, // 24% 지뢰
-  HARD:   { density: 0.40, label: '상급', mines: null }, // 40% 지뢰
+  EASY:   { cols: 9,  rows: 9,  mines: 15, label: '초급' },
+  MEDIUM: { cols: 12, rows: 12, mines: 25, label: '중급' },
+  HARD:   { cols: 15, rows: 15, mines: 45, label: '상급' },
 };
 
 export class MinesweeperGame {
   constructor(difficulty = DIFFICULTY_PRESETS.EASY) {
-    this.rows = 9;
-    this.cols = 9;
-    this.totalMines = 8;
-    this.density = difficulty.density;
-    this.reset();
-  }
-
-  // 실제 화면 공간을 받아 자동으로 업데이트
-  applyGrid(cols, rows) {
-    this.cols = cols;
-    this.rows = rows;
-    this.totalMines = Math.max(1, Math.floor(cols * rows * this.density));
+    this.setDifficulty(difficulty);
   }
 
   setDifficulty(preset) {
-    this.density = preset.density;
-    // rows/cols/mines는 applyGrid()로 설정되므로 여기선 density만 저장
+    this.cols = preset.cols;
+    this.rows = preset.rows;
+    this.totalMines = preset.mines;
     this.reset();
   }
 
@@ -43,18 +32,45 @@ export class MinesweeperGame {
     this.revealedCount = 0;
   }
 
+  // 100% 정통 지뢰찾기 생성 알고리즘:
+  // 첫 클릭 셀 주변 3x3은 지뢰 제외 (neighborMines === 0 보장하여 1개 타일만 파이는 현상 방지)
+  // 나머지 지뢰는 판 전체에 넓고 고르게 무작위 분산 배치
   generateMines(startRow, startCol) {
-    let minesPlaced = 0;
-    while (minesPlaced < this.totalMines) {
-      const r = Math.floor(Math.random() * this.rows);
-      const c = Math.floor(Math.random() * this.cols);
-
-      const isStartArea = Math.abs(r - startRow) <= 1 && Math.abs(c - startCol) <= 1;
-
-      if (!this.board[r][c].isMine && !isStartArea) {
-        this.board[r][c].isMine = true;
-        minesPlaced++;
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.cols; c++) {
+        this.board[r][c].isMine = false;
       }
+    }
+
+    const startAreaSet = new Set();
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        const nr = startRow + dr;
+        const nc = startCol + dc;
+        if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
+          startAreaSet.add(`${nr},${nc}`);
+        }
+      }
+    }
+
+    const validPositions = [];
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.cols; c++) {
+        if (!startAreaSet.has(`${r},${c}`)) {
+          validPositions.push([r, c]);
+        }
+      }
+    }
+
+    // 셔플 알고리즘으로 지뢰를 보드 전체에 넓고 고르게 분산
+    for (let i = validPositions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [validPositions[i], validPositions[j]] = [validPositions[j], validPositions[i]];
+    }
+
+    for (let i = 0; i < this.totalMines && i < validPositions.length; i++) {
+      const [r, c] = validPositions[i];
+      this.board[r][c].isMine = true;
     }
 
     this.calculateNeighbors();
@@ -88,6 +104,7 @@ export class MinesweeperGame {
     return neighbors;
   }
 
+  // 100% 정통 지뢰찾기 표준 연쇄 오픈 로직 (인위적인 파기 조작 코드 완전 제거)
   revealCell(r, c) {
     if (this.isGameOver || this.board[r][c].isFlagged || this.board[r][c].isRevealed) {
       return false;
@@ -109,20 +126,24 @@ export class MinesweeperGame {
       return true;
     }
 
+    // 0 연쇄 터짐 (자연스러운 0 탐색 및 주변 숫자가 경계를 형성하며 멈춤)
     if (cell.neighborMines === 0) {
       const queue = [[r, c]];
       while (queue.length > 0) {
         const [cr, cc] = queue.shift();
-        this.getNeighbors(cr, cc).forEach(([nr, nc]) => {
+        const neighbors = this.getNeighbors(cr, cc);
+
+        for (const [nr, nc] of neighbors) {
           const neighbor = this.board[nr][nc];
           if (!neighbor.isRevealed && !neighbor.isFlagged) {
             neighbor.isRevealed = true;
             this.revealedCount++;
+
             if (neighbor.neighborMines === 0) {
               queue.push([nr, nc]);
             }
           }
-        });
+        }
       }
     }
 

@@ -573,35 +573,72 @@ export class Game {
     this.updateFlipper(this.rightFlipper, dt);
 
     if (!this.ball.inPlunger) {
-      const gravity = 0.24 * dt;
-      this.ball.vy += gravity;
+      const subSteps = 8;
+      const subDt = dt / subSteps;
+      const gravity = (0.24 * dt) / subSteps;
+      const frictionX = Math.pow(0.993, subDt);
+      const frictionY = Math.pow(0.996, subDt);
 
-      this.ball.vx *= Math.pow(0.993, dt);
-      this.ball.vy *= Math.pow(0.996, dt);
+      for (let s = 0; s < subSteps; s++) {
+        if (this.gameState !== 'PLAYING' || this.ball.inPlunger) break;
 
-      if (this.ball.x > 325 && this.ball.y > 110) {
-        this.ball.x = 340;
-        this.ball.vx = 0;
+        this.ball.vy += gravity;
+        this.ball.vx *= frictionX;
+        this.ball.vy *= frictionY;
 
-        if (this.ball.y > 425 && this.ball.vy > 0) {
-          this.ball.y = 430;
-          this.ball.vy = 0;
-          this.ball.inPlunger = true;
+        // 공 최고 속도 제한 (클램핑)
+        const speed = Math.hypot(this.ball.vx, this.ball.vy);
+        const maxSpeed = 15.0;
+        if (speed > maxSpeed) {
+          this.ball.vx = (this.ball.vx / speed) * maxSpeed;
+          this.ball.vy = (this.ball.vy / speed) * maxSpeed;
         }
-      }
 
-      this.ball.x += this.ball.vx * dt;
-      this.ball.y += this.ball.vy * dt;
+        // 플런저 레인(우측 발사 통로) 바운더리 처리
+        if (this.ball.x > 325 && this.ball.y > 110) {
+          this.ball.x = 340;
+          this.ball.vx = 0;
 
-      this.handleWallCollisions();
-      this.handleBumperCollisions();
-      this.handleSlingshotCollisions();
-      this.handleTargetCollisions();
-      this.handleFlipperCollisions(this.leftFlipper, dt);
-      this.handleFlipperCollisions(this.rightFlipper, dt);
+          if (this.ball.y > 425 && this.ball.vy > 0) {
+            this.ball.y = 430;
+            this.ball.vy = 0;
+            this.ball.inPlunger = true;
+            break;
+          }
+        }
 
-      if (this.ball.y > 438 && this.ball.x > 135 && this.ball.x < 225) {
-        this.onBallDrain();
+        this.ball.x += this.ball.vx * subDt;
+        this.ball.y += this.ball.vy * subDt;
+
+        // 하드 바운더리 안전망 (외곽 벽 탈출 방지)
+        const rad = this.ball.radius;
+        if (this.ball.x < 20 + rad) {
+          this.ball.x = 20 + rad;
+          if (this.ball.vx < 0) this.ball.vx = -this.ball.vx * 0.8;
+        }
+        if (this.ball.y < 22 + rad) {
+          this.ball.y = 22 + rad;
+          if (this.ball.vy < 0) this.ball.vy = -this.ball.vy * 0.8;
+        }
+        if (this.ball.x > 355 - rad) {
+          this.ball.x = 355 - rad;
+          if (this.ball.vx > 0) this.ball.vx = -this.ball.vx * 0.8;
+        } else if (this.ball.x > 325 - rad && this.ball.y < 110) {
+          this.ball.x = 325 - rad;
+          if (this.ball.vx > 0) this.ball.vx = -this.ball.vx * 0.8;
+        }
+
+        this.handleWallCollisions();
+        this.handleBumperCollisions();
+        this.handleSlingshotCollisions();
+        this.handleTargetCollisions();
+        this.handleFlipperCollisions(this.leftFlipper, subDt);
+        this.handleFlipperCollisions(this.rightFlipper, subDt);
+
+        if (this.ball.y > 438 && this.ball.x > 135 && this.ball.x < 225) {
+          this.onBallDrain();
+          break;
+        }
       }
     }
   }
@@ -667,9 +704,11 @@ export class Game {
         b.vx = nx * bouncePower;
         b.vy = ny * bouncePower;
 
-        bmp.hitTimer = 10;
-        this.addScore(bmp.score, bmp.x, bmp.y, bmp.type === 'hazard');
-        this.createHitParticles(bmp.x, bmp.y, bmp.color);
+        if (bmp.hitTimer <= 0) {
+          bmp.hitTimer = 15;
+          this.addScore(bmp.score, bmp.x, bmp.y, bmp.type === 'hazard');
+          this.createHitParticles(bmp.x, bmp.y, bmp.color);
+        }
       }
     });
   }
@@ -701,9 +740,11 @@ export class Game {
         b.vx = nx * 9.5;
         b.vy = ny * 9.5;
 
-        sl.hitTimer = 10;
-        this.addScore(sl.score, closestX, closestY, false);
-        this.createHitParticles(closestX, closestY, sl.color);
+        if (sl.hitTimer <= 0) {
+          sl.hitTimer = 15;
+          this.addScore(sl.score, closestX, closestY, false);
+          this.createHitParticles(closestX, closestY, sl.color);
+        }
       }
     });
   }
@@ -716,8 +757,11 @@ export class Game {
       if (b.x > tgt.x - tgt.w / 2 && b.x < tgt.x + tgt.w / 2 &&
           b.y > tgt.y - tgt.h / 2 && b.y < tgt.y + tgt.h / 2) {
         b.vy = Math.abs(b.vy) * 0.8;
-        tgt.hitTimer = 10;
-        this.addScore(tgt.score, tgt.x, tgt.y, false);
+
+        if (tgt.hitTimer <= 0) {
+          tgt.hitTimer = 20;
+          this.addScore(tgt.score, tgt.x, tgt.y, false);
+        }
       }
     });
   }
